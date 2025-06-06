@@ -1,7 +1,6 @@
 import re
-import xml.etree.ElementTree as ET
-from typing import List, Set, Dict, Any
-from xml.etree.ElementTree import Element
+import xml.etree.ElementTree as ElementTree
+from typing import List, Dict, Any
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -17,29 +16,21 @@ agencies_url: str = "https://www.ecfr.gov/api/admin/v1/agencies.json"
 titles_url: str = "https://www.ecfr.gov/api/versioner/v1/titles.json"
 
 
-def add(cfr_reference: Dict[str, Any], subset: str, subset_dict: Dict[str, Set[str]]) -> None:
-    if subset in cfr_reference:
-        if subset not in subset_dict:
-            subset_dict[subset] = set()
-        subset_dict[subset].add(cfr_reference[subset])
+def file_name_for_title(title_number: int) -> str:
+    file_name = "./docs/title_" + str(title_number) + ".xml"
+    return file_name
 
 
-def combine(cfr_reference: Dict[str, Any], combined_cfr_references: dict[int, dict[str, Set[str]]]) -> None:
-    title: int = cfr_reference["title"]
-    if title not in combined_cfr_references:
-        combined_cfr_references[title] = dict()
+def agency_and_children_cfr_references(agency: Dict[str, Any]) -> List[Dict[str, Any]]:
+    combined_cfr_references: List[Dict[str, Any]] = []
+    for cfr_reference in agency["cfr_references"]:
+        combined_cfr_references.append(cfr_reference)
 
-    subset_list: List[str] = ["subtitle", "chapter", "subchapter", "part", "subpart", "section", "appendix"]
-    for subset in subset_list:
-        if subset in cfr_reference:
-            add(cfr_reference, subset, combined_cfr_references[title])
+    for child in agency["children"]:
+        for cfr_reference in child["cfr_references"]:
+            combined_cfr_references.append(cfr_reference)
 
-
-def tags(space: str, element: Element, file: Any):
-    if element.text and element.text.strip():
-        print(space + "  " + element.text.strip(), file=file)
-    for child in element:
-        tags(space + "  ", child, file=file)
+    return combined_cfr_references
 
 
 def run() -> None:
@@ -50,7 +41,7 @@ def run() -> None:
         # Get list of agencies
         response = session.get(agencies_url)
         data: Dict[str, List[Dict[str, Any]]] = response.json()
-        agency_list = data["agencies"]
+        agency_list: List[Dict[str, Any]] = data["agencies"]
 
         # Get list of titles
         response = session.get(titles_url)
@@ -59,52 +50,32 @@ def run() -> None:
 
         # Index titles by title number
         title_index: Dict[int, Dict[str, Any]] = dict()
-        for title in title_list:
-            title_number: int = title["number"]
-            title_index[title_number] = title
+        for title_dict in title_list:
+            title_number: int = title_dict["number"]
+            title_index[title_number] = title_dict
 
-        """
-            Loop through each agency and get the CFR document 
-            for it and it's children using cfr_references section
-        """
-        agency_combined_cfr_references: Dict[str, Dict[int, Dict[str, Set[str]]]] = dict()
-        for agency in agency_list:
-            combined_cfr_references: Dict[int, Dict[str, Set[str]]] = dict()
-
-            agency_cfr_references = agency["cfr_references"]
-            for cfr_reference in agency_cfr_references:
-                combine(cfr_reference, combined_cfr_references)
-
-            for child in agency["children"]:
-                child_cfr_references = child["cfr_references"]
-                for cfr_reference in child_cfr_references:
-                    combine(cfr_reference, combined_cfr_references)
-
-            agency_combined_cfr_references[agency["name"]] = combined_cfr_references
-
-    # Get XML documents by agency
-    pattern = re.compile("[\\W_]+")
-    # client: MongoClient = MongoClient("mongodb://localhost:27017/")
+    # Extract relevant portions of CFR references for each agency
     with requests.session() as session:
         session.mount("https://", adapter)
         session.headers.update({"Accept": "application/xml"})
-        # db = client["ecfr"]
-        for agency in agency_combined_cfr_references:
-            agency_collection = pattern.sub('', agency)
-            with open("./docs/" + agency_collection + ".txt", "w") as file:
-                combined_cfr_references = agency_combined_cfr_references[agency]
-                for title in combined_cfr_references:
+        pattern = re.compile('[\\W_]+')
+        for agency in agency_list:
+            print(agency["name"])
+            file_name_for_agency: str = "./docs/" + pattern.sub("", agency["name"]) + ".txt"
+            with open(file_name_for_agency, "w") as agency_file:
+                combined_cfr_references = agency_and_children_cfr_references(agency)
+                for cfr_reference in combined_cfr_references:
+                    title: int = cfr_reference["title"]
+                    del cfr_reference["title"]
                     up_to_date_as_of: str = title_index[title]["up_to_date_as_of"]
-                    documents_base_url: str = f"https://www.ecfr.gov/api/versioner/v1/full/{up_to_date_as_of}/title-{title}.xml"
-                    subset_dict: Dict[str, Set[str]] = combined_cfr_references[title]
-                    for subset_type in subset_dict:
-                        for identifier in subset_dict[subset_type]:
-                            documents_query: str = f"?{subset_type}={identifier}"
-                            documents_url: str = documents_base_url + documents_query
-                            print(documents_url)
-                            response = session.get(documents_url)
-                            root: Element = ET.fromstring(response.content)
-                            tags("", root, file=file)
+                    xml_url = f"https://www.ecfr.gov/api/versioner/v1/full/{up_to_date_as_of}/title-{title}.xml?"
+                    xml_url += "&".join(f"{key}={value}" for key, value in cfr_reference.items())
+                    response = session.get(xml_url)
+                    root: ElementTree.Element = ElementTree.fromstring(response.content)
+                    for elem in root.iter():
+                        if elem.text:
+                            print(elem.text, file=agency_file, end="")
+                    print(file=agency_file)
 
 
 if __name__ == "__main__":
