@@ -70,6 +70,7 @@ def run() -> None:
                     up_to_date_as_of: str = title_index[title]["up_to_date_as_of"]
                     xml_url = f"https://www.ecfr.gov/api/versioner/v1/full/{up_to_date_as_of}/title-{title}.xml?"
                     xml_url += "&".join(f"{key}={value}" for key, value in cfr_reference.items())
+                    print(xml_url)
                     response = session.get(xml_url)
                     root: ElementTree.Element = ElementTree.fromstring(response.content)
                     for elem in root.iter():
