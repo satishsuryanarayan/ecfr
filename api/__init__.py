@@ -13,7 +13,7 @@ from api.view.cfr_insights import insights
 
 
 class APIConfig:
-    API_TITLE: str = "Bank API"
+    API_TITLE: str = "CFR Insights API"
     API_VERSION: str = "v1"
     OPENAPI_VERSION: str = "3.0.3"
     OPENAPI_URL_PREFIX: str = "/"
