@@ -19,6 +19,12 @@ def test_get_agencies(client):
     response = json.loads(response.data)
     assert len(response) > 0
 
+def test_get_references(client):
+    response = client.get("/references")
+    assert response.status_code == 200
+    response = json.loads(response.data)
+    assert len(response) > 0
+
 
 def test_create_insights(client):
     response = client.post("/insights", json={"agency_id": 1, "date": "2025-06-03"})

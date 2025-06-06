@@ -9,6 +9,7 @@ from sqlalchemy.pool.impl import QueuePool
 
 from api import db
 from api.view.agencies import agencies
+from api.view.cfr_references import references
 from api.view.cfr_insights import insights
 
 
@@ -70,6 +71,7 @@ def create_app(test_config: dict = None) -> Flask:
 
     api: Api = Api(app)
     api.register_blueprint(agencies)
+    api.register_blueprint(references)
     api.register_blueprint(insights)
 
     return app
