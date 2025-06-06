@@ -4,6 +4,7 @@ from flask_smorest import abort, Blueprint
 
 from api.controller.cfr_insights import CFRInsightsController
 from api.dtos.agency import AgencySchema
+from api.dtos.cfr_insight import CFRInsightSchema
 from api.dtos.createinsight import CreateInsightSchema, CreateInsight
 from api.dtos.fromtoquery import FromToQuerySchema, FromToQuery
 
@@ -14,10 +15,10 @@ insights: Blueprint = Blueprint("CFR Insights", "CFR Insights", description="CFR
 class CFRInsightsView(MethodView):
     @insights.doc(description="Get insights list")
     @insights.arguments(schema=FromToQuerySchema, location="query")
-    @insights.response(status_code=200, schema=AgencySchema(many=True))
+    @insights.response(status_code=200, schema=CFRInsightSchema(many=True))
     def get(self, agency_id: str, from_to_query: FromToQuery) -> Response:
         try:
-            return CFRInsightsController.get_insights(agency_id, from_to_query.from_time, from_to_query.to_time)
+            return CFRInsightsController.get_insights(agency_id, from_to_query.from_date, from_to_query.to_date)
         except ResourceWarning as rw:
             abort(503, rw, message=repr(rw))
         except AssertionError as ae:

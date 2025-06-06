@@ -22,7 +22,7 @@ class AgenciesView(MethodView):
         except Exception as e:
             abort(500, e, message=repr(e))
 
-    @agencies.doc(description="Create agencies and their CFR references")
+    @agencies.doc(description="Create agencies and their CFR references from source")
     @agencies.response(status_code=201)
     def post(self) -> None:
         try:

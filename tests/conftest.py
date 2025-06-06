@@ -1,19 +1,7 @@
-import base64
-
 import pytest
 
 from api import create_app
 from api.db import init_db
-
-
-@pytest.fixture(scope="session")
-def basic_auth_header():
-    original_str = "test_test:password_password"
-    str_bytes = original_str.encode("utf-8")
-    encoded_bytes = base64.b64encode(str_bytes)
-    base64_string = encoded_bytes.decode("utf-8")
-    header = {"Authorization": f"Basic {base64_string}"}
-    return header
 
 
 @pytest.fixture(scope="session")
