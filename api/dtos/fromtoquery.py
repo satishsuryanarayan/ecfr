@@ -15,10 +15,9 @@ class FromToQuerySchema(Schema):
     to_time = fields.DateTime(required=False)
 
     @post_load
-    def make_fromtoquery(self, data: dict, **kwargs: dict) -> FromToQuery:
+    def make_from_to_query(self, data: dict, **kwargs: dict) -> FromToQuery:
         if "from_time" not in data:
             data["from_time"] = None
         if "to_time" not in data:
             data["to_time"] = None
         return FromToQuery(**data)
-

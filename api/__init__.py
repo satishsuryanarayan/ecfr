@@ -9,7 +9,7 @@ from sqlalchemy.pool.impl import QueuePool
 
 from api import db
 from api.view.accounts import accounts
-from api.view.customers import customers
+from api.view.agencies import agencies
 from api.view.transfers import transfers
 from api.view.utils.users import users
 
@@ -71,7 +71,7 @@ def create_app(test_config: dict = None) -> Flask:
     db.init_app(app)
 
     api: Api = Api(app)
-    api.register_blueprint(customers)
+    api.register_blueprint(agencies)
     api.register_blueprint(accounts)
     api.register_blueprint(transfers)
     api.register_blueprint(users)
