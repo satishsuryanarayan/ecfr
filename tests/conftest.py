@@ -2,8 +2,8 @@ import base64
 
 import pytest
 
-from bank import create_app
-from bank.db import init_db
+from api import create_app
+from api.db import init_db
 
 
 @pytest.fixture(scope="session")

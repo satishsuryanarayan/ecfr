@@ -7,8 +7,8 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.exc import TimeoutError
 from typing_extensions import Literal
 
-from bank.model.customers import Customers
-from bank.model.metadata import metadata
+from api.model.customers import Customers
+from api.model.metadata import metadata
 
 IsolationLevel = Literal["REPEATABLE READ", "SERIALIZABLE"]
 

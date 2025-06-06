@@ -1,7 +1,7 @@
 [project]
-name = "bank"
+name = "api"
 version = "0.0.1"
-description = "The is Satish Suryanarayan's implementation of banking app."
+description = "The is Satish Suryanarayan's implementation of API for CFR insights."
 dependencies = [
     "bcrypt==4.3.0",
     "cryptography==45.0.3",
@@ -20,7 +20,7 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["bank"]
+source = ["api"]
 
 [project.optional-dependencies]
 dev = [

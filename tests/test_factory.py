@@ -1,6 +1,6 @@
 import json
 
-from bank import create_app
+from api import create_app
 
 
 def test_config():

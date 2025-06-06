@@ -7,10 +7,10 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import exists
 
-from bank.db import get_connection
-from bank.dtos.utils.createuser import CreateUser
-from bank.dtos.utils.user import User
-from bank.model.utils.users import Users
+from api.db import get_connection
+from api.dtos.utils.createuser import CreateUser
+from api.dtos.utils.user import User
+from api.model.utils.users import Users
 
 
 class UsersController:

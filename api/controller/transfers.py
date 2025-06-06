@@ -9,13 +9,13 @@ from sqlalchemy.exc import TimeoutError
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import exists
 
-from bank.controller.utils.listgenerator import chunk_size, list_generator
-from bank.db import get_connection
-from bank.dtos.createtransfer import CreateTransfer
-from bank.dtos.transfer import Transfer, TransferSchema
-from bank.model.accounts import Accounts
-from bank.model.balances import Balances
-from bank.model.transfers import Transfers
+from api.controller.utils.listgenerator import chunk_size, list_generator
+from api.db import get_connection
+from api.dtos.createtransfer import CreateTransfer
+from api.dtos.transfer import Transfer, TransferSchema
+from api.model.accounts import Accounts
+from api.model.balances import Balances
+from api.model.transfers import Transfers
 
 
 class TransfersController:

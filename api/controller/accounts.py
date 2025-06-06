@@ -8,14 +8,14 @@ from sqlalchemy.exc import TimeoutError
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import exists
 
-from bank.controller.utils.listgenerator import chunk_size, list_generator
-from bank.db import get_connection
-from bank.dtos.account import Account, AccountSchema
-from bank.dtos.balance import Balance, BalanceSchema
-from bank.dtos.createaccount import CreateAccount
-from bank.model.accounts import Accounts
-from bank.model.balances import Balances
-from bank.model.customers import Customers
+from api.controller.utils.listgenerator import chunk_size, list_generator
+from api.db import get_connection
+from api.dtos.account import Account, AccountSchema
+from api.dtos.balance import Balance, BalanceSchema
+from api.dtos.createaccount import CreateAccount
+from api.model.accounts import Accounts
+from api.model.balances import Balances
+from api.model.customers import Customers
 
 
 class AccountsController:

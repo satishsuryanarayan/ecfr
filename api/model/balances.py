@@ -3,7 +3,7 @@ from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql.sqltypes import DECIMAL, DateTime
 
-from bank.model.metadata import metadata
+from api.model.metadata import metadata
 
 Balances = Table(
     "balances",

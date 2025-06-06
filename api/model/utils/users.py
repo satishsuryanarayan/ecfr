@@ -1,7 +1,7 @@
 from sqlalchemy import Table, Column
 from sqlalchemy.sql.sqltypes import LargeBinary, String
 
-from bank.model.metadata import metadata
+from api.model.metadata import metadata
 
 Users = Table(
     "users",

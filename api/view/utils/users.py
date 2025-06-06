@@ -1,9 +1,9 @@
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
 
-from bank.controller.utils.users import UsersController
-from bank.dtos.utils.createuser import CreateUserSchema, CreateUser
-from bank.dtos.utils.user import UserSchema, User
+from api.controller.utils.users import UsersController
+from api.dtos.utils.createuser import CreateUserSchema, CreateUser
+from api.dtos.utils.user import UserSchema, User
 
 users: Blueprint = Blueprint("Users", "Users", description="Register User API")
 

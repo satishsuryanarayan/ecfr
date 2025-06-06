@@ -2,7 +2,7 @@ from sqlalchemy import Table, Column, Integer, String
 from sqlalchemy.sql.functions import func
 from sqlalchemy.sql.sqltypes import DateTime
 
-from bank.model.metadata import metadata
+from api.model.metadata import metadata
 
 Customers = Table(
     "customers",

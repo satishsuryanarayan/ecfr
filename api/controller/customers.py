@@ -8,11 +8,11 @@ from sqlalchemy.exc import TimeoutError
 from sqlalchemy.sql.elements import ColumnElement
 from sqlalchemy.sql.expression import exists
 
-from bank.controller.utils.listgenerator import chunk_size, list_generator
-from bank.db import get_connection
-from bank.dtos.createcustomer import CreateCustomer
-from bank.dtos.customer import Customer, CustomerSchema
-from bank.model.customers import Customers
+from api.controller.utils.listgenerator import chunk_size, list_generator
+from api.db import get_connection
+from api.dtos.createcustomer import CreateCustomer
+from api.dtos.customer import Customer, CustomerSchema
+from api.model.customers import Customers
 
 
 class CustomersController:

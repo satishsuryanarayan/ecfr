@@ -3,12 +3,12 @@ from flask.views import MethodView
 from flask_httpauth import HTTPBasicAuth
 from flask_smorest import abort, Blueprint
 
-from bank.controller.accounts import AccountsController
-from bank.controller.utils.users import UsersController
-from bank.dtos.account import AccountSchema, Account
-from bank.dtos.balance import BalanceSchema, Balance
-from bank.dtos.createaccount import CreateAccount, CreateAccountSchema
-from bank.dtos.fromtoquery import FromToQuerySchema, FromToQuery
+from api.controller.accounts import AccountsController
+from api.controller.utils.users import UsersController
+from api.dtos.account import AccountSchema, Account
+from api.dtos.balance import BalanceSchema, Balance
+from api.dtos.createaccount import CreateAccount, CreateAccountSchema
+from api.dtos.fromtoquery import FromToQuerySchema, FromToQuery
 
 accounts: Blueprint = Blueprint("Accounts", "Account", description="Bank Accounts API")
 auth = HTTPBasicAuth()

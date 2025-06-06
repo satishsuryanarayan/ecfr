@@ -3,11 +3,11 @@ from flask.views import MethodView
 from flask_httpauth import HTTPBasicAuth
 from flask_smorest import abort, Blueprint
 
-from bank.controller.transfers import TransfersController
-from bank.controller.utils.users import UsersController
-from bank.dtos.createtransfer import CreateTransfer, CreateTransferSchema
-from bank.dtos.fromtoquery import FromToQuerySchema, FromToQuery
-from bank.dtos.transfer import TransferSchema, Transfer
+from api.controller.transfers import TransfersController
+from api.controller.utils.users import UsersController
+from api.dtos.createtransfer import CreateTransfer, CreateTransferSchema
+from api.dtos.fromtoquery import FromToQuerySchema, FromToQuery
+from api.dtos.transfer import TransferSchema, Transfer
 
 transfers: Blueprint = Blueprint("Transfers", "Transfers", description="Bank Transfers API")
 auth = HTTPBasicAuth()

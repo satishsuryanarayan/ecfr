@@ -7,11 +7,11 @@ from flask_smorest import Api
 from sqlalchemy import create_engine
 from sqlalchemy.pool.impl import QueuePool
 
-from bank import db
-from bank.view.accounts import accounts
-from bank.view.customers import customers
-from bank.view.transfers import transfers
-from bank.view.utils.users import users
+from api import db
+from api.view.accounts import accounts
+from api.view.customers import customers
+from api.view.transfers import transfers
+from api.view.utils.users import users
 
 
 class APIConfig:
