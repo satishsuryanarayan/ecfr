@@ -16,11 +16,6 @@ agencies_url: str = "https://www.ecfr.gov/api/admin/v1/agencies.json"
 titles_url: str = "https://www.ecfr.gov/api/versioner/v1/titles.json"
 
 
-def file_name_for_title(title_number: int) -> str:
-    file_name = "./docs/title_" + str(title_number) + ".xml"
-    return file_name
-
-
 def agency_and_children_cfr_references(agency: Dict[str, Any]) -> List[Dict[str, Any]]:
     combined_cfr_references: List[Dict[str, Any]] = []
     for cfr_reference in agency["cfr_references"]:
@@ -33,7 +28,7 @@ def agency_and_children_cfr_references(agency: Dict[str, Any]) -> List[Dict[str,
     return combined_cfr_references
 
 
-def run() -> None:
+def cfr_references_by_agency() -> None:
     with requests.session() as session:
         session.mount("https://", adapter)
         session.headers.update({"Accept": "application/json"})
@@ -80,4 +75,4 @@ def run() -> None:
 
 
 if __name__ == "__main__":
-    run()
+    cfr_references_by_agency()
