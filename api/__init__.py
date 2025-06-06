@@ -8,10 +8,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.pool.impl import QueuePool
 
 from api import db
-from api.view.accounts import accounts
 from api.view.agencies import agencies
-from api.view.transfers import transfers
-from api.view.utils.users import users
+from api.view.cfr_insights import insights
 
 
 class APIConfig:
@@ -29,9 +27,9 @@ def create_app(test_config: dict = None) -> Flask:
     app.config.from_object(APIConfig)
 
     if (test_config is not None) and (test_config.get("TESTING", False) == True):
-        env = "TEST_DB_CONFIG_FILE"
+        env = "TEST_ECFR_DB_CONFIG_FILE"
     else:
-        env = "DB_CONFIG_FILE"
+        env = "ECFR_DB_CONFIG_FILE"
 
     db_config_file = os.environ.get(env, "db_config.json")
     try:
@@ -72,8 +70,6 @@ def create_app(test_config: dict = None) -> Flask:
 
     api: Api = Api(app)
     api.register_blueprint(agencies)
-    api.register_blueprint(accounts)
-    api.register_blueprint(transfers)
-    api.register_blueprint(users)
+    api.register_blueprint(insights)
 
     return app

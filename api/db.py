@@ -1,13 +1,9 @@
-from datetime import datetime
-
 import click
 from flask import current_app, g
-from sqlalchemy import insert
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import TimeoutError
 from typing_extensions import Literal
 
-from api.model.customers import Customers
 from api.model.metadata import metadata
 
 IsolationLevel = Literal["REPEATABLE READ", "SERIALIZABLE"]
@@ -47,28 +43,6 @@ def init_db():
         with connection.begin():
             metadata.drop_all(bind=connection)
             metadata.create_all(bind=connection)
-            if current_app.testing:
-                test_customers = [
-                    {
-                        "id": 1,
-                        "name": "Arisha Barron"
-                    },
-                    {
-                        "id": 2,
-                        "name": "Branden Gibson"
-                    },
-                    {
-                        "id": 3,
-                        "name": "Rhonda Church"
-                    },
-                    {
-                        "id": 4,
-                        "name": "Georgina Hazel"
-                    }
-                ]
-                for customer in test_customers:
-                    connection.execute(insert(Customers).values(name=customer["name"],
-                                                                creation_time=datetime.now())).close()
     except Exception as e:
         current_app.logger.error("Error during database initialization: %s", e, exc_info=True)
 
