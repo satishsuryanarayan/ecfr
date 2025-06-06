@@ -4,10 +4,10 @@ from sqlalchemy.sql.schema import ForeignKey
 from api.model.metadata import metadata
 
 CFR_References = Table(
-    "cfr_reference_insights",
+    "cfr_references",
     metadata,
 Column("id", Integer, primary_key=True, autoincrement=True, nullable=False),
-    Column("agency_id", String, ForeignKey("agencies.id"), nullable=False, index=True),
+    Column("agency_id", Integer, ForeignKey("agencies.id"), nullable=False, index=True),
     Column("reference", JSON, nullable=False),
-    Column("parent_agency_id", String, ForeignKey("agencies.id"), nullable=True, index=True),
+    Column("parent_agency_id", Integer, ForeignKey("agencies.id"), nullable=True, index=True),
 )

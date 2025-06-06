@@ -16,8 +16,8 @@ class FromToQuerySchema(Schema):
 
     @post_load
     def make_from_to_query(self, data: dict, **kwargs: dict) -> FromToQuery:
-        if "from_time" not in data:
-            data["from_time"] = None
-        if "to_time" not in data:
-            data["to_time"] = None
+        if "from_date" not in data:
+            data["from_date"] = None
+        if "to_date" not in data:
+            data["to_date"] = None
         return FromToQuery(**data)

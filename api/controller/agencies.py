@@ -1,3 +1,4 @@
+import re
 from typing import Dict, List, Any
 
 import requests
@@ -62,21 +63,27 @@ class AgenciesController:
                 current_app.logger.debug("Finished getting agencies from source.")
 
             with connection.begin():
+                pattern = re.compile('[\\W_]+')
+
                 for agency in agency_list:
-                    connection.execute(insert(Agencies).values(id=agency["short_name"], parent_id=None,
-                                                               name=agency["display_name"])).close()
+                    cursor: CursorResult = connection.execute(
+                        insert(Agencies).values(parent_id=None, short_name=agency["short_name"],
+                                                name=agency["display_name"]))
+                    agency_id: int = cursor.inserted_primary_key[0]
+                    cursor.close()
                     for cfr_reference in agency["cfr_references"]:
-                        connection.execute(insert(CFR_References).values(id=agency["short_name"], parent_agency_id=None,
+                        connection.execute(insert(CFR_References).values(agency_id=agency_id, parent_agency_id=None,
                                                                          reference=cfr_reference)).close()
 
                     for child in agency["children"]:
                         connection.execute(
-                            insert(Agencies).values(id=child["short_name"], parent_id=agency["short_name"],
-                                                    name=child["display_name"])).close()
+                            insert(Agencies).values(parent_id=agency_id, name=child["display_name"])).close()
+                        child_agency_id: int = cursor.inserted_primary_key[0]
+                        cursor.close()
                         for cfr_reference in child["cfr_references"]:
-                            connection.execute(insert(CFR_References).values(agency_id=child["short_name"],
-                                                                             parent_agency_id=agency["short_name"],
+                            connection.execute(insert(CFR_References).values(agency_id=child_agency_id,
+                                                                             parent_agency_id=agency_id,
                                                                              reference=cfr_reference)).close()
         except Exception as e:
-            current_app.logger.error("Unknown error while creating customer: %s", e, exc_info=True)
+            current_app.logger.error("Unknown error while creating agencies: %s", e, exc_info=True)
             raise e

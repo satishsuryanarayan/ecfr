@@ -1,11 +1,12 @@
-from sqlalchemy import Table, Column, Integer, String, ForeignKey
+from sqlalchemy import Table, Column, String, ForeignKey, Integer
 
 from api.model.metadata import metadata
 
 Agencies = Table(
     "agencies",
     metadata,
-    Column("id", String(10), primary_key=True, nullable=False),
-    Column("name", String(256), nullable=False, index=True),
-    Column("parent_id", String(10), ForeignKey("agencies.id"), nullable=True, index=True),
+    Column("id", Integer, primary_key=True, autoincrement=True, nullable=False),
+    Column("short_name", String(256) , nullable=True),
+    Column("name", String(512), nullable=False),
+    Column("parent_id", Integer, ForeignKey("agencies.id"), nullable=True, index=True),
 )

@@ -3,7 +3,7 @@ from marshmallow import Schema, fields, post_load
 
 
 class CreateInsight:
-    def __init__(self, agency_id: str, date: datetime) -> None:
+    def __init__(self, agency_id: int, date: datetime) -> None:
         self.agency_id = agency_id
         self.date = date
 
@@ -12,7 +12,7 @@ class CreateInsight:
 
 
 class CreateInsightSchema(Schema):
-    agency_id = fields.String(required=True)
+    agency_id = fields.Integer(required=True)
     date = fields.Date(required=True)
 
     @post_load

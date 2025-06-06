@@ -21,20 +21,17 @@ def test_get_agencies(client):
 
 
 def test_create_insights(client):
-    response = client.post("/insights", json={"agency_id": "USDA", "date": "2025-06-03"})
-    assert response.status_code == 201
-
-    response = client.post("/insights", json={"agency_id": "USDA", "date": "2024-06-03"})
+    response = client.post("/insights", json={"agency_id": 1, "date": "2025-06-03"})
     assert response.status_code == 201
 
 
 def test_get_insights(client):
-    response = client.get("/insights/USDA?from_date=2024-01-01")
-    assert response.status_code == 200
-    response = json.loads(response.data)
-    assert len(response) == 2
-
-    response = client.get("/insights/USDA?from_date=2025-01-01")
+    response = client.get("/insights/1?from_date=2024-01-01")
     assert response.status_code == 200
     response = json.loads(response.data)
     assert len(response) == 1
+
+    response = client.get("/insights/1?from_date=2025-12-01")
+    assert response.status_code == 200
+    response = json.loads(response.data)
+    assert len(response) == 0
