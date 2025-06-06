@@ -1,0 +1,28 @@
+[project]
+name = "bank"
+version = "0.0.1"
+description = "The is Satish Suryanarayan's implementation of banking app."
+dependencies = [
+    "bcrypt==4.3.0",
+    "cryptography==45.0.3",
+    "Flask==3.1.1",
+    "Flask-HTTPAuth==4.8.0",
+    "flask-smorest==0.46.1",
+    "gunicorn==23.0.0",
+    "mysql-connector-python==9.3.0",
+    "SQLAlchemy==2.0.41",
+]
+
+requires-python = ">=3.13.0"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["bank"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.5",
+]
