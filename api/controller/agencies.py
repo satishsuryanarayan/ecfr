@@ -1,4 +1,3 @@
-import re
 from typing import Dict, List, Any
 
 import requests
@@ -63,8 +62,6 @@ class AgenciesController:
                 current_app.logger.debug("Finished getting agencies from source.")
 
             with connection.begin():
-                pattern = re.compile('[\\W_]+')
-
                 for agency in agency_list:
                     cursor: CursorResult = connection.execute(
                         insert(Agencies).values(parent_id=None, short_name=agency["short_name"],
@@ -76,9 +73,9 @@ class AgenciesController:
                                                                          reference=cfr_reference)).close()
 
                     for child in agency["children"]:
-                        connection.execute(
+                        cursor: CursorResult = connection.execute(
                             insert(Agencies).values(parent_id=agency_id, short_name=child["short_name"],
-                                                    name=child["display_name"])).close()
+                                                    name=child["display_name"]))
                         child_agency_id: int = cursor.inserted_primary_key[0]
                         cursor.close()
                         for cfr_reference in child["cfr_references"]:
