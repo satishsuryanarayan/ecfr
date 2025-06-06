@@ -5,7 +5,7 @@ from typing import cast
 import requests
 from flask import current_app, stream_with_context, Response
 from requests.adapters import HTTPAdapter
-from sqlalchemy import insert, select, and_, ColumnElement, exists, or_, MappingResult
+from sqlalchemy import insert, select, and_, ColumnElement, exists, or_, MappingResult, RowMapping
 from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 from urllib3 import Retry
@@ -77,13 +77,14 @@ class CFRInsightsController:
                 parent_id: int = connection.execute(
                     select(Agencies.c.parent_id).where(cast(ColumnElement[bool], Agencies.c.id == agency_id))).scalar()
                 if parent_id:
-                    agency_id = parent_id # Insights are always created at the parent level
+                    agency_id = parent_id  # Insights are always created at the parent level
                 current_app.logger.debug("Creating insight for id=%s", agency_id)
 
-                cursor: MappingResult = connection.execute(select(CFR_References).where(
-                    or_(CFR_References.c.agency_id == agency_id,
-                        CFR_References.c.parent_agency_id == agency_id))).mappings()
-                result = cursor.fetchone()
+                cursor: MappingResult = connection.execution_options(stream_results=True, yield_per=5).execute(
+                    select(CFR_References).where(
+                        or_(CFR_References.c.agency_id == agency_id,
+                            CFR_References.c.parent_agency_id == agency_id))).mappings()
+                result: RowMapping = cursor.fetchone()
                 while result:
                     cfr_reference_id: int = result["id"]
                     reference: dict = result["reference"]
@@ -91,6 +92,8 @@ class CFRInsightsController:
                     parent_agency_id: int = result["parent_agency_id"]
                     title = reference["title"]
                     del reference["title"]
+                    current_app.logger.debug("Creating insight for id=%s with agency_id=%s and parent_agency_id=%s",
+                                             cfr_reference_id, agency_id, parent_agency_id)
                     with requests.session() as session:
                         current_app.logger.debug("Getting xml from source...")
                         session.mount("https://", adapter)
@@ -98,16 +101,19 @@ class CFRInsightsController:
                         formatted_date = date.strftime("%Y-%m-%d")
                         xml_url: str = f"https://www.ecfr.gov/api/versioner/v1/full/{formatted_date}/title-{title}.xml?"
                         xml_url += "&".join(f"{key}={value}" for key, value in reference.items())
+                        current_app.logger.debug("Calling xml url: %s", xml_url)
                         response = session.get(xml_url)
+                        current_app.logger.debug("Received response from xml url: %s", xml_url)
                         root: ElementTree.Element = ElementTree.fromstring(response.content)
                         total_word_count: int = 0
                         total_restrictive_terms_count: int = 0
+                        current_app.logger.debug("Computing metrics...")
                         for elem in root.iter():
                             if elem.text:
                                 word_count, restrictive_terms_count = count_words(elem.text.strip())
                                 total_word_count += word_count
                                 total_restrictive_terms_count += restrictive_terms_count
-                        current_app.logger.debug("Finished getting agencies from source.")
+                        current_app.logger.debug("Finished processing xml url: %s", xml_url)
 
                         connection.execute(
                             insert(CFR_Insights).values(cfr_reference_id=cfr_reference_id, agency_id=agency_id,

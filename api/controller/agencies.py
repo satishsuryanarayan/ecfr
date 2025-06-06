@@ -77,7 +77,8 @@ class AgenciesController:
 
                     for child in agency["children"]:
                         connection.execute(
-                            insert(Agencies).values(parent_id=agency_id, name=child["display_name"])).close()
+                            insert(Agencies).values(parent_id=agency_id, short_name=child["short_name"],
+                                                    name=child["display_name"])).close()
                         child_agency_id: int = cursor.inserted_primary_key[0]
                         cursor.close()
                         for cfr_reference in child["cfr_references"]:
