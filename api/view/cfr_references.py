@@ -41,7 +41,7 @@ class CFRReferencesAgencyView(MethodView):
 @references.route("/references/<int:cfr_reference_id>")
 class CFRReferenceView(MethodView):
     @references.doc(description="Get CFR reference by ID")
-    @references.response(status_code=200, schema=CFRReferenceSchema(many=True))
+    @references.response(status_code=200, schema=CFRReferenceSchema)
     def get(self, cfr_reference_id: int) -> CFRReference:
         try:
             return CFRReferencesController.get_reference(cfr_reference_id)

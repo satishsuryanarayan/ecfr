@@ -1,7 +1,7 @@
 from typing import cast
 
 from flask import current_app, stream_with_context, Response
-from sqlalchemy import select, ColumnElement, or_
+from sqlalchemy import select, ColumnElement, or_, MappingResult
 from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 
@@ -22,14 +22,14 @@ class CFRReferencesController:
             raise ResourceWarning(pe)
 
         try:
-            cursor: CursorResult = connection.execute(
-                select(CFR_References).where(cast(ColumnElement[bool], CFR_References.c.id == cfr_reference_id)))
-            schema: CFRReferenceSchema = CFRReferenceSchema()
-            instance: CFRReference = schema.load(cursor.fetchone())
-            cursor.close()
-            return instance
+            with connection.begin():
+                cursor: MappingResult = connection.execute(
+                    select(CFR_References).where(cast(ColumnElement[bool], CFR_References.c.id == cfr_reference_id))).mappings()
+                schema: CFRReferenceSchema = CFRReferenceSchema()
+                instance: CFRReference = schema.load(cursor.fetchone())
+                cursor.close()
+                return instance
         except Exception as e:
-            connection.rollback()
             current_app.logger.error("Unknown error while getting reference: %s", e, exc_info=True)
             raise e
 
