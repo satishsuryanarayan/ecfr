@@ -18,8 +18,8 @@
    3. `create database test_ecfr;`
    4. `grant all on `ecfr`.* to 'ecfr_user'@'localhost';`
    5. `grant all on `test_ecfr`.* to 'ecfr_user'@'localhost';`
-3. Have environment variables ECFR_DB_CONFIG_FILE point to the database configuration file - one for production and the other for testing respectively.
-Here is are the contents of an example db_config.json file pointed to by the ECFR_DB_CONFIG_FILE environment variable:
+3. Have environment variable ECFR_DB_CONFIG_FILE point to the database configuration file.
+Here are the contents of an example db_config.json file pointed to by the ECFR_DB_CONFIG_FILE environment variable:
 ```json
 {
     "user": "ecfr_user",
