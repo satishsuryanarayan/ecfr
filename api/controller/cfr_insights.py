@@ -36,6 +36,10 @@ class CFRInsightsController:
             raise ResourceWarning(pe)
 
         try:
+            reference_exists: int = connection.execute(
+                select(exists().where(cast(ColumnElement[bool], CFR_References.c.id == cfr_reference_id)))).scalar()
+            if not reference_exists:
+                raise AssertionError(f"CFR Reference with id={cfr_reference_id} does not exist")
             if from_date is not None and to_date is not None:
                 cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
                     select(CFR_Insights).where(
@@ -70,6 +74,10 @@ class CFRInsightsController:
             raise ResourceWarning(pe)
 
         try:
+            agency_exists: int = connection.execute(
+                select(exists().where(cast(ColumnElement[bool], Agencies.c.id == agency_id)))).scalar()
+            if not agency_exists:
+                raise AssertionError(f"Agency with id={agency_id} does not exist")
             if from_date is not None and to_date is not None:
                 cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
                     select(CFR_Insights).where(

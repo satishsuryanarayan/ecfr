@@ -1,13 +1,14 @@
 from typing import cast
 
 from flask import current_app, stream_with_context, Response
-from sqlalchemy import select, ColumnElement, or_, MappingResult
+from sqlalchemy import select, ColumnElement, or_, MappingResult, exists
 from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 
 from api.controller.utils.listgenerator import chunk_size, list_generator
 from api.db import get_connection
 from api.dtos.cfr_reference import CFRReferenceSchema, CFRReference
+from api.model.agencies import Agencies
 from api.model.cfr_references import CFR_References
 
 
@@ -23,6 +24,10 @@ class CFRReferencesController:
 
         try:
             with connection.begin():
+                reference_exists: int = connection.execute(
+                    select(exists().where(cast(ColumnElement[bool], CFR_References.c.id == cfr_reference_id)))).scalar()
+                if not reference_exists:
+                    raise AssertionError(f"CFR Reference with id={cfr_reference_id} does not exist")
                 cursor: MappingResult = connection.execute(
                     select(CFR_References).where(cast(ColumnElement[bool], CFR_References.c.id == cfr_reference_id))).mappings()
                 schema: CFRReferenceSchema = CFRReferenceSchema()
@@ -62,6 +67,10 @@ class CFRReferencesController:
             raise ResourceWarning(pe)
 
         try:
+            agency_exists: int = connection.execute(
+                select(exists().where(cast(ColumnElement[bool], Agencies.c.id == agency_id)))).scalar()
+            if not agency_exists:
+                raise AssertionError(f"Agency with id={agency_id} does not exist")
             cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
                 select(CFR_References).where(
                     or_(CFR_References.c.agency_id == agency_id, CFR_References.c.parent_agency_id == agency_id)))

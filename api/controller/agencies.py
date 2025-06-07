@@ -3,7 +3,7 @@ from typing import Dict, List, Any, cast
 import requests
 from flask import current_app, stream_with_context, Response
 from requests.adapters import HTTPAdapter
-from sqlalchemy import insert, select, ColumnElement, MappingResult
+from sqlalchemy import insert, select, ColumnElement, MappingResult, exists
 from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 from urllib3 import Retry
@@ -32,6 +32,10 @@ class AgenciesController:
             raise ResourceWarning(pe)
 
         try:
+            agency_exists: int = connection.execute(
+                select(exists().where(cast(ColumnElement[bool], Agencies.c.id == agency_id)))).scalar()
+            if not agency_exists:
+                raise AssertionError(f"Agency with id={agency_id} does not exist")
             cursor: MappingResult = connection.execute(
                 select(Agencies).where(cast(ColumnElement[bool], Agencies.c.id == agency_id))).mappings()
             schema: AgencySchema = AgencySchema()
