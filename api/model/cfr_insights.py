@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, Date, Boolean
+from sqlalchemy import Table, Column, Integer, Date
 from sqlalchemy.sql.schema import ForeignKey
 
 from api.model.metadata import metadata

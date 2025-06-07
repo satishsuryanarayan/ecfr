@@ -1,9 +1,11 @@
 from datetime import datetime
+
 from marshmallow import Schema, fields, post_load
 
 
 class CFRInsight:
-    def __init__(self, cfr_reference_id: int, agency_id: int, parent_agency_id: int, date: datetime, word_count: str, restrictive_terms_count: str) -> None:
+    def __init__(self, cfr_reference_id: int, agency_id: int, parent_agency_id: int, date: datetime, word_count: str,
+                 restrictive_terms_count: str) -> None:
         self.cfr_reference_id = cfr_reference_id
         self.agency_id = agency_id
         self.parent_agency_id = parent_agency_id

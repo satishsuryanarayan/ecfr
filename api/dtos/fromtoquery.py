@@ -2,6 +2,7 @@ from datetime import datetime
 
 from marshmallow import Schema, fields, post_load
 
+
 class FromToQuery:
     def __init__(self, from_date: datetime, to_date: datetime) -> None:
         self.from_date = from_date
@@ -9,6 +10,7 @@ class FromToQuery:
 
     def __repr__(self):
         return f"{self.__class__.__name__}(from_date={self.from_date}, to_date={self.to_date})"
+
 
 class FromToQuerySchema(Schema):
     from_date = fields.Date(required=False)

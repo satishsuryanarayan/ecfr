@@ -9,8 +9,8 @@ from sqlalchemy.pool.impl import QueuePool
 
 from api import db
 from api.view.agencies import agencies
-from api.view.cfr_references import references
 from api.view.cfr_insights import insights
+from api.view.cfr_references import references
 
 
 class APIConfig:

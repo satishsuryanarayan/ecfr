@@ -8,6 +8,7 @@ from api.db import get_connection
 from api.dtos.cfr_references import CFRReferenceSchema
 from api.model.cfr_references import CFR_References
 
+
 class CFRReferencesController:
     @classmethod
     def get_references(cls) -> Response:
