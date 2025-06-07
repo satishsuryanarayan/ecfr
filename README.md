@@ -33,10 +33,9 @@
 7. `source .venv/bin/activate`
 8. `pip install -U pip`
 9. `pip install -e ".[dev]"`
-10. `pytest`
-11. Before starting the server for the first time, please run the following command to initialize the database:
+10. Before starting the server for the first time, please run the following command to initialize the database:
     `flask -app api init-db`
-12. After the database is initialized, please run the following command to run the server and the application:
+11. After the database is initialized, please run the following command to run the server and the application:
    `gunicorn -w 4 --threads 2 "api:create_app()" --keep-alive 3600`
-13. Please point your browser to http://127.0.0.1:8000/docs
-14. You can also start jupyter lab in another shell, open ecfr_insights_demo.ipynb (included) and plot more data.
+12. Please point your browser to http://127.0.0.1:8000/docs
+13. You can also start jupyter lab in another shell, open ecfr_insights_demo.ipynb (included) and plot more data.
