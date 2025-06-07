@@ -23,6 +23,21 @@ class CFRReferencesView(MethodView):
             abort(500, e, message=repr(e))
 
 
+@references.route("/references/agency/<int:agency_id>")
+class CFRReferencesAgencyView(MethodView):
+    @references.doc(description="Get CFR references list by agency ID")
+    @references.response(status_code=200, schema=CFRReferenceSchema(many=True))
+    def get(self, agency_id: int) -> Response:
+        try:
+            return CFRReferencesController.get_references_by_agency(agency_id)
+        except ResourceWarning as rw:
+            abort(503, rw, message=repr(rw))
+        except AssertionError as ae:
+            abort(422, ae, message=repr(ae))
+        except Exception as e:
+            abort(500, e, message=repr(e))
+
+
 @references.route("/references/<int:cfr_reference_id>")
 class CFRReferenceView(MethodView):
     @references.doc(description="Get CFR reference by ID")

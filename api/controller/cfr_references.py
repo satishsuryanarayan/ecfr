@@ -1,7 +1,7 @@
 from typing import cast
 
 from flask import current_app, stream_with_context, Response
-from sqlalchemy import select, ColumnElement
+from sqlalchemy import select, ColumnElement, or_
 from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 
@@ -50,4 +50,24 @@ class CFRReferencesController:
         except Exception as e:
             connection.rollback()
             current_app.logger.error("Unknown error while getting references: %s", e, exc_info=True)
+            raise e
+
+    @classmethod
+    def get_references_by_agency(cls, agency_id: int) -> Response:
+        current_app.logger.debug("Getting references by agency...")
+        try:
+            connection: Connection = get_connection(isolation_level="REPEATABLE READ")
+        except TimeoutError as pe:
+            current_app.logger.warning("Not enough resources: %s", pe, exc_info=True)
+            raise ResourceWarning(pe)
+
+        try:
+            cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
+                select(CFR_References).where(
+                    or_(CFR_References.c.agency_id == agency_id, CFR_References.c.parent_agency_id == agency_id)))
+            return Response(stream_with_context(list_generator(cursor.mappings(), connection, CFRReferenceSchema())),
+                            content_type="application/json")
+        except Exception as e:
+            connection.rollback()
+            current_app.logger.error("Unknown error while getting references by agency: %s", e, exc_info=True)
             raise e
