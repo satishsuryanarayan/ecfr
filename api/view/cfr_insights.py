@@ -10,7 +10,7 @@ from api.dtos.fromtoquery import FromToQuerySchema, FromToQuery
 insights: Blueprint = Blueprint("CFR Insights", "CFR Insights", description="CFR Insights API")
 
 
-@insights.route("/insights/<int:agency_id>")
+@insights.route("/insights/agency/<int:agency_id>")
 class CFRInsightsListView(MethodView):
     @insights.doc(description="Get insights list")
     @insights.arguments(schema=FromToQuerySchema, location="query")
@@ -39,3 +39,19 @@ class CFRInsightsListView(MethodView):
                 abort(422, ae, message=repr(ae))
             except Exception as e:
                 abort(500, e, message=repr(e))
+
+
+@insights.route("/insights/<int:cfr_reference_id>")
+class CFRInsightView(MethodView):
+    @insights.doc(description="Get insights list")
+    @insights.arguments(schema=FromToQuerySchema, location="query")
+    @insights.response(status_code=200, schema=CFRInsightSchema(many=True))
+    def get(self, from_to_query: FromToQuery, cfr_reference_id: int) -> Response:
+        try:
+            return CFRInsightsController.get_insight(cfr_reference_id, from_to_query.from_date, from_to_query.to_date)
+        except ResourceWarning as rw:
+            abort(503, rw, message=repr(rw))
+        except AssertionError as ae:
+            abort(422, ae, message=repr(ae))
+        except Exception as e:
+            abort(500, e, message=repr(e))

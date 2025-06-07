@@ -27,6 +27,40 @@ adapter: HTTPAdapter = HTTPAdapter(max_retries=retry_strategy)
 
 class CFRInsightsController:
     @classmethod
+    def get_insight(cls, cfr_reference_id: int, from_date: datetime = None, to_date: datetime = None) -> Response:
+        current_app.logger.debug("Getting insight...")
+        try:
+            connection: Connection = get_connection(isolation_level="REPEATABLE READ")
+        except TimeoutError as pe:
+            current_app.logger.warning("Not enough resources: %s", pe, exc_info=True)
+            raise ResourceWarning(pe)
+
+        try:
+            if from_date is not None and to_date is not None:
+                cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
+                    select(CFR_Insights).where(
+                        and_(CFR_Insights.c.cfr_reference_id == cfr_reference_id, CFR_Insights.c.date >= from_date,
+                             CFR_Insights.date <= to_date)))
+            elif from_date is not None and to_date is None:
+                cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
+                    select(CFR_Insights).where(and_(CFR_Insights.c.cfr_reference_id == cfr_reference_id,
+                                                    CFR_Insights.c.date >= from_date)))
+            elif from_date is None and to_date is not None:
+                cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
+                    select(CFR_Insights).where(and_(CFR_Insights.c.cfr_reference_id == cfr_reference_id,
+                                                    CFR_Insights.c.date <= to_date)))
+            else:
+                cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
+                    select(CFR_Insights).where(
+                        cast(ColumnElement[bool], CFR_Insights.c.cfr_reference_id == cfr_reference_id)))
+            return Response(stream_with_context(list_generator(cursor.mappings(), connection, CFRInsightSchema())),
+                            content_type="application/json")
+        except Exception as e:
+            connection.rollback()
+            current_app.logger.error("Unknown error while getting insight: %s", e, exc_info=True)
+            raise e
+
+    @classmethod
     def get_insights(cls, agency_id: int, from_date: datetime = None, to_date: datetime = None) -> Response:
         current_app.logger.debug("Getting insights...")
         try:
@@ -60,7 +94,7 @@ class CFRInsightsController:
                             content_type="application/json")
         except Exception as e:
             connection.rollback()
-            current_app.logger.error("Unknown error while getting agencies: %s", e, exc_info=True)
+            current_app.logger.error("Unknown error while getting insights: %s", e, exc_info=True)
             raise e
 
     @classmethod
@@ -127,7 +161,7 @@ class CFRInsightsController:
                                                         restrictive_terms_count=total_restrictive_terms_count)).close()
                     result = cursor.fetchone()
         except Exception as e:
-            current_app.logger.error("Unknown error while creating customer: %s", e, exc_info=True)
+            current_app.logger.error("Unknown error while creating insights: %s", e, exc_info=True)
             raise e
         finally:
             cursor.close()
