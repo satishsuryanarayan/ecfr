@@ -1,16 +1,16 @@
-from typing import Dict, List, Any
+from typing import Dict, List, Any, cast
 
 import requests
 from flask import current_app, stream_with_context, Response
 from requests.adapters import HTTPAdapter
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, ColumnElement, MappingResult
 from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 from urllib3 import Retry
 
 from api.controller.utils.listgenerator import chunk_size, list_generator
 from api.db import get_connection
-from api.dtos.agency import AgencySchema
+from api.dtos.agency import AgencySchema, Agency
 from api.model.agencies import Agencies
 from api.model.cfr_references import CFR_References
 
@@ -22,6 +22,27 @@ adapter: HTTPAdapter = HTTPAdapter(max_retries=retry_strategy)
 
 
 class AgenciesController:
+    @classmethod
+    def get_agency(cls, agency_id: int) -> Agency:
+        current_app.logger.debug("Getting agency...")
+        try:
+            connection: Connection = get_connection(isolation_level="REPEATABLE READ")
+        except TimeoutError as pe:
+            current_app.logger.warning("Not enough resources: %s", pe, exc_info=True)
+            raise ResourceWarning(pe)
+
+        try:
+            cursor: MappingResult = connection.execute(
+                select(Agencies).where(cast(ColumnElement[bool], Agencies.c.id == agency_id))).mappings()
+            schema: AgencySchema = AgencySchema()
+            instance: Agency = schema.load(cursor.fetchone())
+            cursor.close()
+            return instance
+        except Exception as e:
+            connection.rollback()
+            current_app.logger.error("Unknown error while getting agency: %s", e, exc_info=True)
+            raise e
+
     @classmethod
     def get_agencies(cls) -> Response:
         current_app.logger.debug("Getting agencies...")

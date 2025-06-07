@@ -1,7 +1,7 @@
 from marshmallow import Schema, fields, post_load
 
 
-class CFRReferences:
+class CFRReference:
     def __init__(self, id: int, agency_id: int, parent_agency_id: int, reference: dict) -> None:
         self.id = id
         self.agency_id = agency_id
@@ -19,5 +19,5 @@ class CFRReferenceSchema(Schema):
     reference = fields.Dict(required=True)
 
     @post_load
-    def make_cfr_reference(self, data: dict, **kwargs: dict) -> CFRReferences:
-        return CFRReferences(**data)
+    def make_cfr_reference(self, data: dict, **kwargs: dict) -> CFRReference:
+        return CFRReference(**data)
