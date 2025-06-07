@@ -61,7 +61,7 @@ class CFRInsightsController:
                             content_type="application/json")
         except Exception as e:
             connection.rollback()
-            current_app.logger.error("Unknown error while getting insight: %s", e, exc_info=True)
+            current_app.logger.error("Exception while getting insight: %s", e, exc_info=True)
             raise e
 
     @classmethod
@@ -102,7 +102,7 @@ class CFRInsightsController:
                             content_type="application/json")
         except Exception as e:
             connection.rollback()
-            current_app.logger.error("Unknown error while getting insights: %s", e, exc_info=True)
+            current_app.logger.error("Exception while getting insights: %s", e, exc_info=True)
             raise e
 
     @classmethod
@@ -179,5 +179,5 @@ class CFRInsightsController:
                                                         restrictive_terms_count=total_restrictive_terms_count)).close()
                     result = cursor.fetchone()
         except Exception as e:
-            current_app.logger.error("Unknown error while creating insights: %s", e, exc_info=True)
+            current_app.logger.error("Exception while creating insights: %s", e, exc_info=True)
             raise e

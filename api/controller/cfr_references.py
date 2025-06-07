@@ -35,7 +35,7 @@ class CFRReferencesController:
                 cursor.close()
                 return instance
         except Exception as e:
-            current_app.logger.error("Unknown error while getting reference: %s", e, exc_info=True)
+            current_app.logger.error("Exception while getting reference: %s", e, exc_info=True)
             raise e
 
     @classmethod
@@ -54,7 +54,7 @@ class CFRReferencesController:
                             content_type="application/json")
         except Exception as e:
             connection.rollback()
-            current_app.logger.error("Unknown error while getting references: %s", e, exc_info=True)
+            current_app.logger.error("Exception while getting references: %s", e, exc_info=True)
             raise e
 
     @classmethod
@@ -78,5 +78,5 @@ class CFRReferencesController:
                             content_type="application/json")
         except Exception as e:
             connection.rollback()
-            current_app.logger.error("Unknown error while getting references by agency: %s", e, exc_info=True)
+            current_app.logger.error("Exception while getting references by agency: %s", e, exc_info=True)
             raise e

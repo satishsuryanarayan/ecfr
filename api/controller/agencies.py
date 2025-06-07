@@ -44,7 +44,7 @@ class AgenciesController:
             return instance
         except Exception as e:
             connection.rollback()
-            current_app.logger.error("Unknown error while getting agency: %s", e, exc_info=True)
+            current_app.logger.error("Exception while getting agency: %s", e, exc_info=True)
             raise e
 
     @classmethod
@@ -63,7 +63,7 @@ class AgenciesController:
                             content_type="application/json")
         except Exception as e:
             connection.rollback()
-            current_app.logger.error("Unknown error while getting agencies: %s", e, exc_info=True)
+            current_app.logger.error("Exception while getting agencies: %s", e, exc_info=True)
             raise e
 
     @classmethod
@@ -108,5 +108,5 @@ class AgenciesController:
                                                                              parent_agency_id=agency_id,
                                                                              reference=cfr_reference)).close()
         except Exception as e:
-            current_app.logger.error("Unknown error while creating agencies: %s", e, exc_info=True)
+            current_app.logger.error("Exception while creating agencies: %s", e, exc_info=True)
             raise e
