@@ -23,5 +23,9 @@ source = ["api"]
 
 [project.optional-dependencies]
 dev = [
+    "ipympl==0.9.7",
+    "jupyterlab==4.4.3",
+    "matplotlib==3.10.3",
+    "pandas==2.3.0",
     "pytest==8.3.5",
 ]
