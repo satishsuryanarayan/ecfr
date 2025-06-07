@@ -124,6 +124,16 @@ class CFRInsightsController:
                     select(Agencies.c.parent_id).where(cast(ColumnElement[bool], Agencies.c.id == agency_id))).scalar()
                 if parent_id:
                     agency_id = parent_id  # Insights are always created at the parent level
+
+                insight_exists: int = connection.execute(
+                    select(exists().where(
+                        and_(CFR_Insights.c.agency_id == agency_id, CFR_Insights.c.date == date)))).scalar()
+                if insight_exists:
+                    current_app.logger.info(
+                        "Insights already exist for agency id=%s and date=%s", agency_id, date)
+                    return
+
+                # Compute insights if it hasn't already been computed
                 current_app.logger.debug("Creating insight for id=%s", agency_id)
 
                 cursor: MappingResult = connection.execution_options(stream_results=True, yield_per=5).execute(
@@ -171,5 +181,3 @@ class CFRInsightsController:
         except Exception as e:
             current_app.logger.error("Unknown error while creating insights: %s", e, exc_info=True)
             raise e
-        finally:
-            cursor.close()
