@@ -39,3 +39,4 @@
 12. After the database is initialized, please run the following command to run the server and the application:
    `gunicorn -w 4 --threads 2 "api:create_app()" --keep-alive 3600`
 13. Please point your browser to http://127.0.0.1:8000/docs
+14. You can also start jupyter lab in another shell, open ecfr_insights_demo.ipynb (included) and plot more data.
