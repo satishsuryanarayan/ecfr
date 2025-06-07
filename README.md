@@ -12,7 +12,7 @@
 
 ## Instructions
 1. Download and install Community Edition of MySQL from [here](https://www.mysql.com/products/community/)
-2. Do the following steps on the mysql command line as root user:
+2. Do the following steps on the mysql command line as root user:<br/>
    1. `create user 'ecfr_user'@'localhost' identified by 'secret';`
    2. `create database ecfr;`
    3. `create database test_ecfr;`
@@ -28,8 +28,8 @@ Here are the contents of an example db_config.json file pointed to by the ECFR_D
     "password": "secret"
 }
 ```
-4. Before starting the server for the first time, please run the following command to initialize the database:
-    `flask -app api init-db`
-5. After the database is initialized, please run the following command to run the server and the application:
-   `gunicorn -w 4 --threads 2 "api:create_app()" --keep-alive 3600`
+4. Before starting the server for the first time, please run the following command to initialize the database:<br/>
+`flask -app api init-db`
+5. After the database is initialized, please run the following command to run the server and the application:<br/>
+`gunicorn -w 4 --threads 2 "api:create_app()" --keep-alive 3600`
 6. Please point your browser to http://127.0.0.1:8000/docs
