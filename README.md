@@ -10,7 +10,7 @@
 2. APIs to extract KPIs
 
 
-## Instructions
+## Instructions to run the server and use the API
 1. Download and install Community Edition of MySQL from [here](https://www.mysql.com/products/community/)
 2. Do the following steps on the mysql command line as root user:
    1. `create user 'ecfr_user'@'localhost' identified by 'secret';`
@@ -28,7 +28,13 @@ Here is are the contents of an example db_config.json file pointed to by the ECF
     "password": "secret"
 }
 ```
-4. Before starting the server for the first time, please run the following command to initialize the database:
+4. Git clone [this](https://github.com/satishsuryanarayan/ecfr) repository
+5. `cd ecfr`
+5. `python -m venv .venv`
+5. `source .venv/bin/activate`
+6. `pip install -U pip`
+7. `pip install -e ".[dev]"`
+5. Before starting the server for the first time, please run the following command to initialize the database:
     `flask -app api init-db`
 5. After the database is initialized, please run the following command to run the server and the application:
    `gunicorn -w 4 --threads 2 "api:create_app()" --keep-alive 3600`
