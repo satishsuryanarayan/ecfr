@@ -92,7 +92,7 @@ class CFRInsightsController:
                     parent_agency_id: int = result["parent_agency_id"]
                     title = reference["title"]
                     del reference["title"]
-                    current_app.logger.debug("Creating insight for id=%s with agency_id=%s and parent_agency_id=%s",
+                    current_app.logger.debug("Creating insight for cfr_reference_id=%s with agency_id=%s and parent_agency_id=%s",
                                              cfr_reference_id, agency_id, parent_agency_id)
                     with requests.session() as session:
                         current_app.logger.debug("Getting xml from source...")
