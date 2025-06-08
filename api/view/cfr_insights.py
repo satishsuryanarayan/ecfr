@@ -12,7 +12,7 @@ insights: Blueprint = Blueprint("CFR Insights", "CFR Insights", description="CFR
 
 @insights.route("/insights/agency/<int:agency_id>")
 class CFRInsightsListView(MethodView):
-    @insights.doc(description="Get insights list")
+    @insights.doc(description="Get insights list for agency by agency ID")
     @insights.arguments(schema=FromToQuerySchema, location="query")
     @insights.response(status_code=200, schema=CFRInsightSchema(many=True))
     def get(self, from_to_query: FromToQuery, agency_id: int) -> Response:
@@ -27,7 +27,7 @@ class CFRInsightsListView(MethodView):
 
     @insights.route("/insights")
     class CFRInsightsCreateView(MethodView):
-        @insights.doc(description="Create CFR insights")
+        @insights.doc(description="Create CFR insights - insights are always created at parent agency level")
         @insights.response(status_code=201)
         @insights.arguments(schema=CreateInsightSchema)
         def post(self, create_insight: CreateInsight) -> None:
@@ -43,7 +43,7 @@ class CFRInsightsListView(MethodView):
 
 @insights.route("/insights/<int:cfr_reference_id>")
 class CFRInsightView(MethodView):
-    @insights.doc(description="Get insights list")
+    @insights.doc(description="Get insights list by CFR reference ID")
     @insights.arguments(schema=FromToQuerySchema, location="query")
     @insights.response(status_code=200, schema=CFRInsightSchema(many=True))
     def get(self, from_to_query: FromToQuery, cfr_reference_id: int) -> Response:

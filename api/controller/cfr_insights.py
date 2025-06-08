@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ElementTree
+import hashlib
 from datetime import datetime
 from typing import cast
 
@@ -106,7 +107,7 @@ class CFRInsightsController:
             raise e
 
     @classmethod
-    def create_insights(cls, agency_id: str, date: datetime) -> None:
+    def create_insights(cls, agency_id: int, date: datetime) -> None:
         current_app.logger.debug("Creating insights...")
         try:
             connection: Connection = get_connection(isolation_level="SERIALIZABLE")
@@ -165,9 +166,12 @@ class CFRInsightsController:
                         total_word_count: int = 0
                         total_restrictive_terms_count: int = 0
                         current_app.logger.debug("Computing metrics...")
+                        hash_obj = hashlib.sha256()
                         for elem in root.iter():
                             if elem.text:
-                                word_count, restrictive_terms_count = count_words(elem.text.strip())
+                                stripped_text = elem.text.strip()
+                                hash_obj.update(stripped_text.encode())
+                                word_count, restrictive_terms_count = count_words(stripped_text)
                                 total_word_count += word_count
                                 total_restrictive_terms_count += restrictive_terms_count
                         current_app.logger.debug("Finished processing xml url: %s", xml_url)
@@ -175,7 +179,7 @@ class CFRInsightsController:
                         connection.execute(
                             insert(CFR_Insights).values(cfr_reference_id=cfr_reference_id, agency_id=agency_id,
                                                         parent_agency_id=parent_agency_id, date=date,
-                                                        word_count=total_word_count,
+                                                        word_count=total_word_count, checksum=hash_obj.hexdigest(),
                                                         restrictive_terms_count=total_restrictive_terms_count)).close()
                     result = cursor.fetchone()
         except Exception as e:
