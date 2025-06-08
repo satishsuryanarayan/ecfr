@@ -10,12 +10,12 @@ class CFRInsight:
         self.agency_id = agency_id
         self.parent_agency_id = parent_agency_id
         self.date = date
-        self.checksun = checksum
+        self.checksum = checksum
         self.word_count = word_count
         self.restrictive_terms_count = restrictive_terms_count
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(cfr_reference_id={self.cfr_reference_id}, agency_id={self.agency_id}, parent_agency_id={self.parent_agency_id}, date={self.date}, checksum={self.checksun}, word_count={self.word_count}, restricted_word_count={self.restrictive_terms_count})"
+        return f"{self.__class__.__name__}(cfr_reference_id={self.cfr_reference_id}, agency_id={self.agency_id}, parent_agency_id={self.parent_agency_id}, date={self.date}, checksum={self.checksum}, word_count={self.word_count}, restricted_word_count={self.restrictive_terms_count})"
 
 
 class CFRInsightSchema(Schema):
