@@ -2,9 +2,9 @@ from typing import Sequence, List, Dict, Any
 
 from flask import current_app
 from marshmallow import Schema
-from sqlalchemy import Connection, Column, RowMapping
+from sqlalchemy import Connection, RowMapping
 from sqlalchemy.engine.result import MappingResult
-from sqlalchemy.sql.base import ReadOnlyColumnCollection, ColumnCollection
+from sqlalchemy.sql.base import ColumnCollection
 
 chunk_size = 1000
 
@@ -40,20 +40,20 @@ def group_list_generator(cursor: MappingResult, connection: Connection, schema: 
         group_dict: Dict[str, Any] = dict()
         group_list: List[Dict[str, Any]] = list()
         if results:
-            group_dict = {key: results[0][key] for key in group}
+            group_dict = {column.key: results[0][column] for column in group}
         while results:
             serialized_data = []
             for row in results:
-                row_group = {key: results[0][key] for key in group}
+                row_group = {column.key: results[0][column] for column in group}
                 if row_group == group_dict:
-                    group_list.append({k: row[k] for k in list_keys if k in row})
+                    group_list.append({column.key: row[column] for column in list_keys if column in row})
                 else:
                     group_dict[list_key] = group_list
                     instance = schema.load(group_dict)
                     serialized_data.append(schema.dumps(instance))
                     group_dict = row_group
                     group_list = list()
-                    group_list.append({k: row[k] for k in list_keys if k in row})
+                    group_list.append({column.key: row[column] for column in list_keys if column in row})
             yield ", ".join(serialized_data)
             results: Sequence[RowMapping] = cursor.fetchmany(size=size)
         yield "]"

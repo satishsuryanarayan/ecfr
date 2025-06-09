@@ -41,9 +41,9 @@ class AgenciesController:
                     Agencies.join(CFR_References, Agencies.c.id == CFR_References.c.agency_id)).where(
                     cast(ColumnElement[bool], Agencies.c.id == agency_id))).mappings()
             mappings: Sequence[RowMapping] = cursor.fetchall()
-            grouped_by_agency: Dict[str, Any] = {key: mappings[0][key] for key in Agencies.columns}
-            grouped_by_agency["cfr_references"] = [{k: d[k] for k in CFR_References.columns if k in d} for d in
-                                                   mappings]
+            grouped_by_agency: Dict[str, Any] = {column.key: mappings[0][column] for column in Agencies.columns}
+            grouped_by_agency["cfr_references"] = [{column.key: row[column] for column in CFR_References.columns
+                                                    if column in row} for row in mappings]
             current_app.logger.debug(grouped_by_agency)
             schema: AgencySchema = AgencySchema()
             instance: Agency = schema.load(grouped_by_agency)
