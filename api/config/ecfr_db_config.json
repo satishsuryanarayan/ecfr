@@ -1,6 +1,6 @@
 {
     "user": "ecfr_user",
-    "host": "localhost",
+    "host": "mysql-container",
     "database": "ecfr",
     "password": "secret"
 }
