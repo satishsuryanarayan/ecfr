@@ -1,4 +1,3 @@
-import click
 from flask import current_app, g
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import TimeoutError
@@ -41,18 +40,10 @@ def init_db():
 
     try:
         with connection.begin():
-            metadata.drop_all(bind=connection)
             metadata.create_all(bind=connection)
     except Exception as e:
         current_app.logger.error("Error during database initialization: %s", e, exc_info=True)
 
 
-@click.command("init-db")
-def init_db_command():
-    init_db()
-    click.echo("Initialized the database.")
-
-
 def init_app(app):
     app.teardown_appcontext(close_connection)
-    app.cli.add_command(init_db_command)

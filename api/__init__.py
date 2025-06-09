@@ -68,6 +68,7 @@ def create_app(test_config: dict = None) -> Flask:
     atexit.register(cleanup)
 
     db.init_app(app)
+    db.init_db()
 
     api: Api = Api(app)
     api.register_blueprint(agencies)
