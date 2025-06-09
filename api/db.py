@@ -1,3 +1,5 @@
+import os
+
 import click
 from flask import current_app, g
 from sqlalchemy.engine import Connection
@@ -41,8 +43,12 @@ def init_db():
         return
 
     try:
+        env = "ECFR_DB_FORCE_INIT"
+        force_init = os.getenv(env, 'False').lower() in ('true', '1', 't')
         with connection.begin():
-            metadata.create_all(bind=connection, checkfirst=True)
+            if force_init:
+                metadata.drop_all(bind=connection)
+            metadata.create_all(bind=connection)
     except Exception as e:
         current_app.logger.info("%s", e, exc_info=False)
         return
