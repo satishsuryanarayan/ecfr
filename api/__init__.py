@@ -1,5 +1,6 @@
 import atexit
 import json
+import logging
 import os
 
 from flask import Flask
@@ -25,6 +26,9 @@ class APIConfig:
 # Create and configure the Flask app
 def create_app(test_config: dict = None) -> Flask:
     app: Flask = Flask(__name__)
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
     app.config.from_object(APIConfig)
 
     if (test_config is not None) and (test_config.get("TESTING", False) == True):
