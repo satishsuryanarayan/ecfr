@@ -18,7 +18,7 @@ def get_connection(isolation_level: IsolationLevel = "SERIALIZABLE") -> Connecti
 
 
 # Get the database connection from the application context and close it
-def close_connection():
+def close_connection(e=None):
     connections: dict = g.pop("connections", None)
     if connections is not None:
         if "SERIALIZABLE" in connections:
