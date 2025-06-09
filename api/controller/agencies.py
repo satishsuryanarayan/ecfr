@@ -38,7 +38,7 @@ class AgenciesController:
                 raise AssertionError(f"Agency with id={agency_id} does not exist")
             cursor: MappingResult = connection.execute(
                 select(Agencies, CFR_References).select_from(
-                    Agencies.join(CFR_References, Agencies.c.id == CFR_References.agency_id)).where(
+                    Agencies.join(CFR_References, Agencies.c.id == CFR_References.c.agency_id)).where(
                     cast(ColumnElement[bool], Agencies.c.id == agency_id))).mappings()
             mappings: Sequence[RowMapping] = cursor.fetchall()
             grouped_by_agency: Dict[str, Any] = {key: mappings[0][key] for key in Agencies.columns}
