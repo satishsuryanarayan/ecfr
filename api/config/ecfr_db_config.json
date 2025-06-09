@@ -1,0 +1,6 @@
+{
+    "user": "ecfr_user",
+    "host": "localhost",
+    "database": "ecfr",
+    "password": "secret"
+}
