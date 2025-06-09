@@ -68,13 +68,14 @@ def create_app(test_config: dict = None) -> Flask:
     atexit.register(cleanup)
 
     db.init_app(app)
+    with app.app_context():
+        db.init_db()
+
+    app.logger.info("Database initialized.")
 
     api: Api = Api(app)
     api.register_blueprint(agencies)
     api.register_blueprint(references)
     api.register_blueprint(insights)
-
-    with app.app_context():
-        db.init_db()
 
     return app

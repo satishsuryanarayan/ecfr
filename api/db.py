@@ -32,6 +32,7 @@ def close_connection(e=None):
 
 # Initialize the database
 def init_db():
+    current_app.logger.info("Initializing database...")
     try:
         connection: Connection = get_connection(isolation_level="SERIALIZABLE")
     except TimeoutError as pe:
