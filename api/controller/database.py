@@ -7,7 +7,7 @@ from api.model.metadata import metadata
 
 class DatabaseController:
     @classmethod
-    def init_db(cls, force_init: bool = False) -> None:
+    def init_db(cls, force: bool = False) -> None:
         current_app.logger.debug("Initializing database...")
         try:
             connection: Connection = get_connection(isolation_level="SERIALIZABLE")
@@ -17,7 +17,7 @@ class DatabaseController:
 
         try:
             with connection.begin():
-                if force_init:
+                if force:
                     metadata.drop_all(connection)
                 metadata.create_all(connection)
             current_app.logger.info("Database initialized.")

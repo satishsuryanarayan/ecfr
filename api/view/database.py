@@ -2,7 +2,7 @@ from flask.views import MethodView
 from flask_smorest import abort, Blueprint
 
 from api.controller.database import DatabaseController
-from api.dtos.forceinit import ForceInit, ForceInitSchema
+from api.dtos.initdb import InitDB, InitDBSchema
 
 database: Blueprint = Blueprint("Database", "Database", description="Database API")
 
@@ -10,11 +10,11 @@ database: Blueprint = Blueprint("Database", "Database", description="Database AP
 @database.route("/init-db")
 class DatabaseView(MethodView):
     @database.doc(description="Create tables and initialize the database.")
-    @database.arguments(schema=ForceInitSchema)
+    @database.arguments(schema=InitDBSchema)
     @database.response(status_code=201)
-    def post(self, force_init: ForceInit) -> None:
+    def post(self, init_db: InitDB) -> None:
         try:
-            DatabaseController.init_db(force_init.flag)
+            DatabaseController.init_db(init_db.force)
         except ResourceWarning as rw:
             abort(503, rw, message=repr(rw))
         except AssertionError as ae:
