@@ -8,7 +8,7 @@ from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 from urllib3 import Retry
 
-from api.controller.utils.listgenerator import chunk_size, list_generator, group_list_generator
+from api.controller.utils.listgenerator import chunk_size, group_list_generator
 from api.db import get_connection
 from api.dtos.agency import AgencySchema, Agency
 from api.model.agencies import Agencies
@@ -41,7 +41,8 @@ class AgenciesController:
                     cast(ColumnElement[bool], Agencies.c.id == agency_id))).mappings()
             mappings: Sequence[RowMapping] = cursor.fetchall()
             grouped_by_agency: Dict[str, Any] = {key: mappings[0][key] for key in Agencies.columns}
-            grouped_by_agency["cfr_references"] = [{k: d[k] for k in CFR_References.columns if k in d} for d in mappings]
+            grouped_by_agency["cfr_references"] = [{k: d[k] for k in CFR_References.columns if k in d} for d in
+                                                   mappings]
             current_app.logger.debug(grouped_by_agency)
             schema: AgencySchema = AgencySchema()
             instance: Agency = schema.load(grouped_by_agency)
@@ -63,8 +64,10 @@ class AgenciesController:
 
         try:
             cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
-                Agencies.join(CFR_References, Agencies.c.id == CFR_References.c.agency_id).select().order_by(Agencies.columns))
-            return Response(stream_with_context(group_list_generator(cursor.mappings(), connection, AgencySchema(), Agencies.columns, "cfr_references")),
+                Agencies.join(CFR_References, Agencies.c.id == CFR_References.c.agency_id).select().order_by(
+                    Agencies.columns))
+            return Response(stream_with_context(group_list_generator(cursor.mappings(), connection, AgencySchema(),
+                                    Agencies.columns, "cfr_references", CFR_References.columns)),
                             content_type="application/json")
         except Exception as e:
             connection.rollback()
