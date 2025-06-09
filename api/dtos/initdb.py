@@ -10,7 +10,7 @@ class InitDB:
 
 
 class InitDBSchema(Schema):
-    flag = fields.Boolean(required=True, dump_default=False)
+    force = fields.Boolean(required=True)
 
     @post_load
     def make_init_db(self, data: dict, **kwargs: dict) -> InitDB:
