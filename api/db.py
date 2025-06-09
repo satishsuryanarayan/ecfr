@@ -41,9 +41,10 @@ def init_db():
 
     try:
         with connection.begin():
-            metadata.create_all(bind=connection)
+            metadata.create_all(bind=connection, checkfirst=True)
     except Exception as e:
-        current_app.logger.error("Error during database initialization: %s", e, exc_info=True)
+        current_app.logger.info("%s", e, exc_info=False)
+        return
 
 
 def init_app(app):
