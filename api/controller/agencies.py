@@ -63,7 +63,7 @@ class AgenciesController:
 
         try:
             cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
-                Agencies.join(CFR_References, Agencies.c.id == CFR_References.c.agency_id).select().order_by(Agencies))
+                Agencies.join(CFR_References, Agencies.c.id == CFR_References.c.agency_id).select().order_by(Agencies.columns))
             return Response(stream_with_context(group_list_generator(cursor.mappings(), connection, AgencySchema(), Agencies.columns, "cfr_references")),
                             content_type="application/json")
         except Exception as e:
