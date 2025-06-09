@@ -1,12 +1,6 @@
-import os
-
-import click
 from flask import current_app, g
 from sqlalchemy.engine import Connection
-from sqlalchemy.exc import TimeoutError
 from typing_extensions import Literal
-
-from api.model.metadata import metadata
 
 IsolationLevel = Literal["REPEATABLE READ", "SERIALIZABLE"]
 
@@ -24,7 +18,7 @@ def get_connection(isolation_level: IsolationLevel = "SERIALIZABLE") -> Connecti
 
 
 # Get the database connection from the application context and close it
-def close_connection(e=None):
+def close_connection():
     connections: dict = g.pop("connections", None)
     if connections is not None:
         if "SERIALIZABLE" in connections:
@@ -33,31 +27,5 @@ def close_connection(e=None):
             connections["REPEATABLE READ"].close()
 
 
-# Initialize the database
-def init_db():
-    current_app.logger.info("Initializing database...")
-    try:
-        connection: Connection = get_connection(isolation_level="SERIALIZABLE")
-    except TimeoutError as pe:
-        current_app.logger.warning("Not enough resources: %s", pe, exc_info=True)
-        return
-
-    try:
-        env = "ECFR_DB_FORCE_INIT"
-        force_init = os.getenv(env, 'False').lower() in ('true', '1', 't')
-        with connection.begin():
-            if force_init:
-                metadata.drop_all(bind=connection)
-            metadata.create_all(bind=connection)
-    except Exception as e:
-        current_app.logger.info("%s", e, exc_info=False)
-        return
-
-@click.command("init-db")
-def init_db_command():
-    init_db()
-    click.echo("Initialized the database.")
-
 def init_app(app):
     app.teardown_appcontext(close_connection)
-    app.cli.add_command(init_db_command)

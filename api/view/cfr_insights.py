@@ -28,8 +28,8 @@ class CFRInsightsListView(MethodView):
     @insights.route("/insights")
     class CFRInsightsCreateView(MethodView):
         @insights.doc(description="Create CFR insights - insights are always created at parent agency level")
-        @insights.response(status_code=201)
         @insights.arguments(schema=CreateInsightSchema)
+        @insights.response(status_code=201)
         def post(self, create_insight: CreateInsight) -> None:
             try:
                 CFRInsightsController.create_insights(create_insight.agency_id, create_insight.date)
