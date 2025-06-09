@@ -44,7 +44,7 @@ def group_list_generator(cursor: MappingResult, connection: Connection, schema: 
         while results:
             serialized_data = []
             for row in results:
-                row_group = {column.key: results[0][column] for column in group}
+                row_group = {column.key: row[column] for column in group}
                 if row_group == group_dict:
                     group_list.append({column.key: row[column] for column in list_keys if column in row})
                 else:

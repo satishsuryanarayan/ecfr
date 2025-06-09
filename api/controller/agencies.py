@@ -66,8 +66,7 @@ class AgenciesController:
         try:
             cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
                 select(Agencies, CFR_References).select_from(
-                    Agencies.join(CFR_References, Agencies.c.id == CFR_References.c.agency_id)).order_by(
-                    Agencies.columns))
+                    Agencies.join(CFR_References, Agencies.c.id == CFR_References.c.agency_id)).order_by(Agencies.c.id))
             return Response(stream_with_context(group_list_generator(cursor.mappings(), connection, AgencySchema(),
                                                                      Agencies.columns, "cfr_references",
                                                                      CFR_References.columns)),
