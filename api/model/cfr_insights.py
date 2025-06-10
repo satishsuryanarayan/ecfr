@@ -6,7 +6,7 @@ from api.model.database import metadata
 CFR_Insights = Table(
     "cfr_insights",
     metadata,
-    Column("cfr_reference_id", Integer, ForeignKey("cfr_references.id"), nullable=False, index=True),
+    Column("cfr_reference_id", Integer, nullable=False, index=True),
     Column("agency_id", Integer, nullable=False, index=True),
     Column("parent_agency_id", Integer, nullable=True, index=True),
     Column("date", Date, nullable=False, index=True),
