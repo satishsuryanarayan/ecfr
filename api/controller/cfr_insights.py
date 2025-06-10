@@ -1,5 +1,5 @@
-import xml.etree.ElementTree as ElementTree
 import hashlib
+import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 from typing import cast
 
@@ -183,7 +183,8 @@ class CFRInsightsController:
                                                             word_count=total_word_count, checksum=hash_obj.hexdigest(),
                                                             restrictive_terms_count=total_restrictive_terms_count)).close()
                         except Exception as e:
-                            current_app.logger.error("Exception: %s occurred while creating insights for xml url: %s", e, xml_url, exc_info=False)
+                            current_app.logger.error("Exception: %s occurred while creating insights for xml url: %s",
+                                                     e, xml_url, exc_info=False)
                     result = cursor.fetchone()
         except Exception as e:
             current_app.logger.error("Exception while creating insights: %s", e, exc_info=True)
