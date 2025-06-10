@@ -153,34 +153,37 @@ class CFRInsightsController:
                         "Creating insight for cfr_reference_id=%s with agency_id=%s and parent_agency_id=%s",
                         cfr_reference_id, agency_id, parent_agency_id)
                     with requests.session() as session:
-                        current_app.logger.debug("Getting xml from source...")
-                        session.mount("https://", adapter)
-                        session.headers.update({"Accept": "application/xml"})
-                        formatted_date = date.strftime("%Y-%m-%d")
-                        xml_url: str = f"https://www.ecfr.gov/api/versioner/v1/full/{formatted_date}/title-{title}.xml?"
-                        xml_url += "&".join(f"{key}={value}" for key, value in reference.items())
-                        current_app.logger.debug("Calling xml url: %s", xml_url)
-                        response = session.get(xml_url)
-                        current_app.logger.debug("Received response from xml url: %s", xml_url)
-                        root: ElementTree.Element = ElementTree.fromstring(response.content)
-                        total_word_count: int = 0
-                        total_restrictive_terms_count: int = 0
-                        current_app.logger.debug("Computing metrics...")
-                        hash_obj = hashlib.sha256()
-                        for elem in root.iter():
-                            if elem.text:
-                                stripped_text = elem.text.strip()
-                                hash_obj.update(stripped_text.encode())
-                                word_count, restrictive_terms_count = count_words(stripped_text)
-                                total_word_count += word_count
-                                total_restrictive_terms_count += restrictive_terms_count
-                        current_app.logger.debug("Finished processing xml url: %s", xml_url)
+                        try:
+                            current_app.logger.debug("Getting xml from source...")
+                            session.mount("https://", adapter)
+                            session.headers.update({"Accept": "application/xml"})
+                            formatted_date = date.strftime("%Y-%m-%d")
+                            xml_url: str = f"https://www.ecfr.gov/api/versioner/v1/full/{formatted_date}/title-{title}.xml?"
+                            xml_url += "&".join(f"{key}={value}" for key, value in reference.items())
+                            current_app.logger.debug("Calling xml url: %s", xml_url)
+                            response = session.get(xml_url)
+                            current_app.logger.debug("Received response from xml url: %s", xml_url)
+                            root: ElementTree.Element = ElementTree.fromstring(response.content)
+                            total_word_count: int = 0
+                            total_restrictive_terms_count: int = 0
+                            current_app.logger.debug("Computing metrics...")
+                            hash_obj = hashlib.sha256()
+                            for elem in root.iter():
+                                if elem.text:
+                                    stripped_text = elem.text.strip()
+                                    hash_obj.update(stripped_text.encode())
+                                    word_count, restrictive_terms_count = count_words(stripped_text)
+                                    total_word_count += word_count
+                                    total_restrictive_terms_count += restrictive_terms_count
+                            current_app.logger.debug("Finished processing xml url: %s", xml_url)
 
-                        connection.execute(
-                            insert(CFR_Insights).values(cfr_reference_id=cfr_reference_id, agency_id=agency_id,
-                                                        parent_agency_id=parent_agency_id, date=date,
-                                                        word_count=total_word_count, checksum=hash_obj.hexdigest(),
-                                                        restrictive_terms_count=total_restrictive_terms_count)).close()
+                            connection.execute(
+                                insert(CFR_Insights).values(cfr_reference_id=cfr_reference_id, agency_id=agency_id,
+                                                            parent_agency_id=parent_agency_id, date=date,
+                                                            word_count=total_word_count, checksum=hash_obj.hexdigest(),
+                                                            restrictive_terms_count=total_restrictive_terms_count)).close()
+                        except Exception as e:
+                            current_app.logger.error("Exception while creating insights: %s", e, exc_info=False)
                     result = cursor.fetchone()
         except Exception as e:
             current_app.logger.error("Exception while creating insights: %s", e, exc_info=True)
