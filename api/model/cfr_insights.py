@@ -19,6 +19,6 @@ event.listen(
     metadata,
     "after_create",
     DDL(
-        "ALTER TABLE cfr_insights PARTITION BY HASH(agency_id) PARTITIONS 350"
+        "ALTER TABLE cfr_insights PARTITION BY HASH(agency_id) PARTITIONS 350;"
     ),
 )
