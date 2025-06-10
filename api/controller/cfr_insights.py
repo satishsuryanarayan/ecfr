@@ -143,21 +143,21 @@ class CFRInsightsController:
                         or_(CFR_References.c.agency_id == agency_id,
                             CFR_References.c.parent_agency_id == agency_id))).mappings()
                 result: RowMapping = cursor.fetchone()
-                while result:
-                    cfr_reference_id: int = result["id"]
-                    reference: dict = result["reference"]
-                    agency_id: int = result["agency_id"]
-                    parent_agency_id: int = result["parent_agency_id"]
-                    title = reference["title"]
-                    del reference["title"]
-                    current_app.logger.debug(
-                        "Creating insight for cfr_reference_id=%s with agency_id=%s and parent_agency_id=%s",
-                        cfr_reference_id, agency_id, parent_agency_id)
-                    with requests.session() as session:
+                with requests.session() as session:
+                    session.mount("https://", adapter)
+                    session.headers.update({"Accept": "application/xml"})
+                    while result:
+                        cfr_reference_id: int = result["id"]
+                        reference: dict = result["reference"]
+                        agency_id: int = result["agency_id"]
+                        parent_agency_id: int = result["parent_agency_id"]
+                        title = reference["title"]
+                        del reference["title"]
+                        current_app.logger.debug(
+                            "Creating insight for cfr_reference_id=%s with agency_id=%s and parent_agency_id=%s",
+                            cfr_reference_id, agency_id, parent_agency_id)
                         try:
                             current_app.logger.debug("Getting xml from source...")
-                            session.mount("https://", adapter)
-                            session.headers.update({"Accept": "application/xml"})
                             formatted_date = date.strftime("%Y-%m-%d")
                             xml_url: str = f"https://www.ecfr.gov/api/versioner/v1/full/{formatted_date}/title-{title}.xml?"
                             xml_url += "&".join(f"{key}={value}" for key, value in reference.items())
@@ -187,7 +187,7 @@ class CFRInsightsController:
                         except Exception as e:
                             current_app.logger.error("Exception: %s occurred while creating insights for xml url: %s",
                                                      e, xml_url, exc_info=False)
-                    result = cursor.fetchone()
+                        result = cursor.fetchone()
         except Exception as e:
             current_app.logger.error("Exception while creating insights: %s", e, exc_info=True)
             raise e
