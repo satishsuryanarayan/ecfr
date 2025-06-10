@@ -162,9 +162,9 @@ class CFRInsightsController:
                             xml_url: str = f"https://www.ecfr.gov/api/versioner/v1/full/{formatted_date}/title-{title}.xml?"
                             xml_url += "&".join(f"{key}={value}" for key, value in reference.items())
                             current_app.logger.debug("Calling xml url: %s", xml_url)
-                            response = session.get(xml_url)
+                            response: requests.Response = session.get(xml_url)
                             current_app.logger.debug("Received response from xml url: %s", xml_url)
-                            root: Element = ElementTree.fromstring(response.content)
+                            root: Element = ElementTree.fromstring(response.text)
                             total_word_count: int = 0
                             total_restrictive_terms_count: int = 0
                             current_app.logger.debug("Computing metrics...")
