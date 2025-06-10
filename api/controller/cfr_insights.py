@@ -161,31 +161,35 @@ class CFRInsightsController:
                             formatted_date = date.strftime("%Y-%m-%d")
                             xml_url: str = f"https://www.ecfr.gov/api/versioner/v1/full/{formatted_date}/title-{title}.xml?"
                             xml_url += "&".join(f"{key}={value}" for key, value in reference.items())
-                            current_app.logger.debug("Calling xml url: %s", xml_url)
+                            current_app.logger.debug("Calling url: %s", xml_url)
                             response: requests.Response = session.get(xml_url)
-                            current_app.logger.debug("Received response from xml url: %s", xml_url)
-                            root: Element = ElementTree.fromstring(response.text)
-                            total_word_count: int = 0
-                            total_restrictive_terms_count: int = 0
-                            current_app.logger.debug("Computing metrics...")
-                            hash_obj = hashlib.sha256()
-                            for elem in root.iter():
-                                if elem.text:
-                                    stripped_text = elem.text.strip()
-                                    if stripped_text:
-                                        hash_obj.update(stripped_text.encode())
-                                        word_count, restrictive_terms_count = count_words(stripped_text)
-                                        total_word_count += word_count
-                                        total_restrictive_terms_count += restrictive_terms_count
-                            current_app.logger.debug("Finished processing xml url: %s", xml_url)
-
-                            connection.execute(
-                                insert(CFR_Insights).values(cfr_reference_id=cfr_reference_id, agency_id=agency_id,
-                                                            parent_agency_id=parent_agency_id, date=date,
-                                                            word_count=total_word_count, checksum=hash_obj.hexdigest(),
-                                                            restrictive_terms_count=total_restrictive_terms_count)).close()
+                            current_app.logger.debug("Received response from url: %s", xml_url)
+                            if response.status_code == 200:
+                                root: Element = ElementTree.fromstring(response.text)
+                                total_word_count: int = 0
+                                total_restrictive_terms_count: int = 0
+                                current_app.logger.debug("Computing metrics...")
+                                hash_obj = hashlib.sha256()
+                                for elem in root.iter():
+                                    if elem.text:
+                                        stripped_text = elem.text.strip()
+                                        if stripped_text:
+                                            hash_obj.update(stripped_text.encode())
+                                            word_count, restrictive_terms_count = count_words(stripped_text)
+                                            total_word_count += word_count
+                                            total_restrictive_terms_count += restrictive_terms_count
+                                current_app.logger.debug("Finished processing url: %s", xml_url)
+                                connection.execute(
+                                    insert(CFR_Insights).values(cfr_reference_id=cfr_reference_id, agency_id=agency_id,
+                                                                parent_agency_id=parent_agency_id, date=date,
+                                                                word_count=total_word_count,
+                                                                checksum=hash_obj.hexdigest(),
+                                                                restrictive_terms_count=total_restrictive_terms_count)).close()
+                            else:
+                                raise AssertionError("Status code: %s Reason: %s", response.status_code,
+                                                     response.reason)
                         except Exception as e:
-                            current_app.logger.error("Exception: %s occurred while creating insights for xml url: %s",
+                            current_app.logger.error("Exception %s occurred while creating insights for url: %s",
                                                      e, xml_url, exc_info=False)
                         result = cursor.fetchone()
         except Exception as e:
