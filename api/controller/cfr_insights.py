@@ -1,10 +1,11 @@
 import hashlib
-import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 from typing import cast
 
 import requests
 from flask import current_app, stream_with_context, Response
+from lxml import etree
+from lxml.etree import Element
 from requests.adapters import HTTPAdapter
 from sqlalchemy import insert, select, and_, ColumnElement, exists, or_, MappingResult, RowMapping
 from sqlalchemy.engine import Connection, CursorResult
@@ -163,7 +164,7 @@ class CFRInsightsController:
                             current_app.logger.debug("Calling xml url: %s", xml_url)
                             response = session.get(xml_url)
                             current_app.logger.debug("Received response from xml url: %s", xml_url)
-                            root: ElementTree.Element = ElementTree.fromstring(response.content)
+                            root: Element = etree.fromstring(response.content)
                             total_word_count: int = 0
                             total_restrictive_terms_count: int = 0
                             current_app.logger.debug("Computing metrics...")
@@ -171,10 +172,11 @@ class CFRInsightsController:
                             for elem in root.iter():
                                 if elem.text:
                                     stripped_text = elem.text.strip()
-                                    hash_obj.update(stripped_text.encode())
-                                    word_count, restrictive_terms_count = count_words(stripped_text)
-                                    total_word_count += word_count
-                                    total_restrictive_terms_count += restrictive_terms_count
+                                    if stripped_text:
+                                        hash_obj.update(stripped_text.encode())
+                                        word_count, restrictive_terms_count = count_words(stripped_text)
+                                        total_word_count += word_count
+                                        total_restrictive_terms_count += restrictive_terms_count
                             current_app.logger.debug("Finished processing xml url: %s", xml_url)
 
                             connection.execute(
