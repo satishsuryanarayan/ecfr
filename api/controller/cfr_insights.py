@@ -1,11 +1,11 @@
 import hashlib
 from datetime import datetime
 from typing import cast
+from xml.etree import ElementTree
+from xml.etree.ElementTree import Element
 
 import requests
 from flask import current_app, stream_with_context, Response
-from lxml import etree
-from lxml.etree import Element
 from requests.adapters import HTTPAdapter
 from sqlalchemy import insert, select, and_, ColumnElement, exists, or_, MappingResult, RowMapping
 from sqlalchemy.engine import Connection, CursorResult
@@ -164,7 +164,7 @@ class CFRInsightsController:
                             current_app.logger.debug("Calling xml url: %s", xml_url)
                             response = session.get(xml_url)
                             current_app.logger.debug("Received response from xml url: %s", xml_url)
-                            root: Element = etree.fromstring(response.content)
+                            root: Element = ElementTree.fromstring(response.content)
                             total_word_count: int = 0
                             total_restrictive_terms_count: int = 0
                             current_app.logger.debug("Computing metrics...")
