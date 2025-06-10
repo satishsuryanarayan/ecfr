@@ -1,5 +1,4 @@
 from sqlalchemy import Table, Column, Integer, Date, String, event, DDL
-from sqlalchemy.sql.schema import ForeignKey
 
 from api.model.database import metadata
 
