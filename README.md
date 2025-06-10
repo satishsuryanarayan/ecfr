@@ -18,11 +18,12 @@
 ### **Method 2 (The hard way):**
    1. Download and install Community Edition of MySQL from [here](https://www.mysql.com/products/community/)
    2. Do the following steps on the mysql command line as mysql root user:</br>
-      1. `create user 'ecfr_user'@'localhost' identified by 'secret';`
+      1. `create user 'ecfr_user'@'%' identified by 'secret';`
       2. `create database ecfr;`
       3. `create database test_ecfr;`
-      4. `grant all on `ecfr`.* to 'ecfr_user'@'localhost';`
-      5. `grant all on `test_ecfr`.* to 'ecfr_user'@'localhost';`
+      4. `grant all on `ecfr`.* to 'ecfr_user'@'%';`
+      5. `grant all on `test_ecfr`.* to 'ecfr_user'@'%';`
+      6. `flush privileges;`
    3. Have environment variable ECFR_DB_CONFIG_FILE point to the database configuration file. Below is the contents of an example db_config.json file pointed to by the ECFR_DB_CONFIG_FILE environment variable:
       ```json
       {
