@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, Date, String
+from sqlalchemy import Table, Column, Integer, Date, String, event, DDL
 
 from api.model.database import metadata
 
@@ -12,4 +12,12 @@ CFR_Insights = Table(
     Column("word_count", Integer, nullable=False),
     Column("checksum", String(256), nullable=False),
     Column("restrictive_terms_count", Integer, nullable=False),
+)
+
+event.listen(
+    CFR_Insights,
+    "after_create",
+    DDL(
+        "ALTER TABLE cfr_insights PARTITION BY HASH(agency_id) PARTITIONS 350;"
+    ),
 )
