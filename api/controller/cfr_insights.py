@@ -186,8 +186,7 @@ class CFRInsightsController:
                                                                 checksum=hash_obj.hexdigest(),
                                                                 restrictive_terms_count=total_restrictive_terms_count)).close()
                             else:
-                                raise AssertionError("Status code: %s Reason: %s", response.status_code,
-                                                     response.reason)
+                                raise AssertionError(f"Status code: {response.status_code} Reason: {response.reason}")
                         except Exception as e:
                             current_app.logger.error("Exception %s occurred while creating insights for url: %s",
                                                      e, xml_url, exc_info=False)
