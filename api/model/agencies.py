@@ -1,6 +1,6 @@
 from sqlalchemy import Table, Column, String, ForeignKey, Integer
 
-from api.model.metadata import metadata
+from api.model.database import metadata
 
 Agencies = Table(
     "agencies",

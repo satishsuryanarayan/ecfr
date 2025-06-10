@@ -1,7 +1,7 @@
 from sqlalchemy import Table, Column, Integer, JSON
 from sqlalchemy.sql.schema import ForeignKey
 
-from api.model.metadata import metadata
+from api.model.database import metadata
 
 CFR_References = Table(
     "cfr_references",

@@ -1,7 +1,7 @@
 from sqlalchemy import Table, Column, Integer, Date, String
 from sqlalchemy.sql.schema import ForeignKey
 
-from api.model.metadata import metadata
+from api.model.database import metadata
 
 CFR_Insights = Table(
     "cfr_insights",

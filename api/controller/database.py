@@ -2,7 +2,7 @@ from flask import current_app
 from sqlalchemy import Connection
 
 from api.db import get_connection
-from api.model.metadata import metadata
+from api.model.database import metadata
 
 
 class DatabaseController:
