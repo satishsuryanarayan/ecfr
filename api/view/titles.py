@@ -3,7 +3,8 @@ from flask.views import MethodView
 from flask_smorest import abort, Blueprint
 
 from api.controller.titles import TitlesController
-from api.dtos.date import DateSchema
+from api.dtos.amendmentdate import AmendmentDateSchema
+from api.dtos.issuedate import IssueDateSchema
 from api.dtos.title import TitleSchema, Title
 
 titles: Blueprint = Blueprint("Titles", "Titles", description="Titles API")
@@ -54,7 +55,7 @@ class TitleView(MethodView):
 @titles.route("/titles/amendments/issue_dates/<int:title_number>")
 class TitleAmendmentsIssueDateView(MethodView):
     @titles.doc(description="Get unique issue dates by title ID")
-    @titles.response(status_code=200, schema=DateSchema(many=True))
+    @titles.response(status_code=200, schema=IssueDateSchema(many=True))
     def get(self, title_number: int) -> Response:
         try:
             return TitlesController.get_issue_dates(title_number)
@@ -67,9 +68,9 @@ class TitleAmendmentsIssueDateView(MethodView):
 
 
 @titles.route("/titles/amendments/amendment_dates/<int:title_number>")
-class TitleAmendmentsIssueDateView(MethodView):
+class TitleAmendmentsAmendmentDateView(MethodView):
     @titles.doc(description="Get unique issue dates by title ID")
-    @titles.response(status_code=200, schema=DateSchema(many=True))
+    @titles.response(status_code=200, schema=AmendmentDateSchema(many=True))
     def get(self, title_number: int) -> Response:
         try:
             return TitlesController.get_amendment_dates(title_number)

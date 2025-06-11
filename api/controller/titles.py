@@ -11,7 +11,8 @@ from urllib3 import Retry
 
 from api.controller.utils.listgenerator import chunk_size, group_list_generator, list_generator
 from api.db import get_connection
-from api.dtos.date import DateSchema
+from api.dtos.amendmentdate import AmendmentDateSchema
+from api.dtos.issuedate import IssueDateSchema
 from api.dtos.title import TitleSchema, Title
 from api.model.amendments import Amendments
 from api.model.title import Titles
@@ -146,7 +147,7 @@ class TitlesController:
                     cast(ColumnElement[bool], Amendments.c.title == title_number)).order_by(
                     Amendments.c.issue_date))
 
-            return Response(stream_with_context(list_generator(cursor.mappings(), connection, DateSchema())),
+            return Response(stream_with_context(list_generator(cursor.mappings(), connection, IssueDateSchema())),
                             content_type="application/json")
         except Exception as e:
             connection.rollback()
@@ -172,7 +173,7 @@ class TitlesController:
                     cast(ColumnElement[bool], Amendments.c.title == title_number)).order_by(
                     Amendments.c.amendment_date))
 
-            return Response(stream_with_context(list_generator(cursor.mappings(), connection, DateSchema())),
+            return Response(stream_with_context(list_generator(cursor.mappings(), connection, AmendmentDateSchema())),
                             content_type="application/json")
         except Exception as e:
             connection.rollback()
