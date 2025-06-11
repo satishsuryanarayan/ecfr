@@ -104,24 +104,24 @@ class TitlesController:
                 titles_list: List[Dict[str, Any]] = data["titles"]
                 current_app.logger.debug("Finished getting titles from source.")
 
-            with connection.begin():
-                for title in titles_list:
-                    title_number: int = title["number"]
-                    connection.execute(insert(Titles).values(number=title_number, name=title["name"])).close()
-                    amendments_url: str = f"https://www.ecfr.gov/api/versioner/v1/versions/title-{title_number}.json"
-                    current_app.logger.debug(f"Getting amendments from source for title={title_number}...")
-                    response: requests.Response = session.get(amendments_url)
-                    data: Dict[str, List[Dict[str, Any]]] = response.json()
-                    versions_list: List[Dict[str, Any]] = data["content_versions"]
-                    unique_versions: Set[Tuple[str, str]] = set()
-                    for version in versions_list:
-                        unique_versions.add((version["amendment_date"], version["issue_date"]))
-                    for version in unique_versions:
-                        amendment_date: datetime = datetime.strptime(version[0], "%Y-%m-%d")
-                        issue_date: datetime = datetime.strptime(version[1], "%Y-%m-%d")
-                        connection.execute(insert(Amendments).values(title=title_number, amendment_date=amendment_date,
-                                                                     issue_date=issue_date))
-                    current_app.logger.debug(f"Finished populating amendments from source for title={title_number}...")
+                with connection.begin():
+                    for title in titles_list:
+                        title_number: int = title["number"]
+                        connection.execute(insert(Titles).values(number=title_number, name=title["name"])).close()
+                        amendments_url: str = f"https://www.ecfr.gov/api/versioner/v1/versions/title-{title_number}.json"
+                        current_app.logger.debug(f"Getting amendments from source for title={title_number}...")
+                        response: requests.Response = session.get(amendments_url)
+                        data: Dict[str, List[Dict[str, Any]]] = response.json()
+                        versions_list: List[Dict[str, Any]] = data["content_versions"]
+                        unique_versions: Set[Tuple[str, str]] = set()
+                        for version in versions_list:
+                            unique_versions.add((version["amendment_date"], version["issue_date"]))
+                        for version in unique_versions:
+                            amendment_date: datetime = datetime.strptime(version[0], "%Y-%m-%d")
+                            issue_date: datetime = datetime.strptime(version[1], "%Y-%m-%d")
+                            connection.execute(insert(Amendments).values(title=title_number, amendment_date=amendment_date,
+                                                                         issue_date=issue_date))
+                        current_app.logger.debug(f"Finished populating amendments from source for title={title_number}...")
         except Exception as e:
             current_app.logger.error("Exception while creating titles: %s", e, exc_info=True)
             raise e
