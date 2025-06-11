@@ -7,7 +7,7 @@ from api.model.database import metadata
 
 class DatabaseController:
     @classmethod
-    def init_db(cls, force: bool = False) -> None:
+    def initialize(cls, force: bool = False) -> None:
         current_app.logger.debug("Initializing database...")
         try:
             connection: Connection = get_connection(isolation_level="SERIALIZABLE")

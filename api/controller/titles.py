@@ -9,8 +9,9 @@ from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 from urllib3 import Retry
 
-from api.controller.utils.listgenerator import chunk_size, group_list_generator
+from api.controller.utils.listgenerator import chunk_size, group_list_generator, list_generator
 from api.db import get_connection
+from api.dtos.date import DateSchema
 from api.dtos.title import TitleSchema, Title
 from api.model.amendments import Amendments
 from api.model.title import Titles
@@ -124,4 +125,56 @@ class TitlesController:
                             f"Finished populating amendments for title={title_number}.")
         except Exception as e:
             current_app.logger.error("Exception while creating titles: %s", e, exc_info=True)
+            raise e
+
+    @classmethod
+    def get_issue_dates(cls, title_number: int) -> Response:
+        current_app.logger.debug("Getting issue dates...")
+        try:
+            connection: Connection = get_connection(isolation_level="REPEATABLE READ")
+        except TimeoutError as pe:
+            current_app.logger.warning("Not enough resources: %s", pe, exc_info=True)
+            raise ResourceWarning(pe)
+
+        try:
+            title_exists: int = connection.execute(
+                select(exists().where(cast(ColumnElement[bool], Titles.c.number == title_number)))).scalar()
+            if not title_exists:
+                raise AssertionError(f"Title with number={title_number} does not exist")
+            cursor: CursorResult = connection.execute(
+                select(Amendments.c.issue_date).distinct().where(
+                    cast(ColumnElement[bool], Amendments.c.number == title_number)).order_by(
+                    Amendments.c.issue_date))
+
+            return Response(stream_with_context(list_generator(cursor.mappings(), connection, DateSchema())),
+                            content_type="application/json")
+        except Exception as e:
+            connection.rollback()
+            current_app.logger.error("Exception while getting issue dates: %s", e, exc_info=True)
+            raise e
+
+    @classmethod
+    def get_amendment_dates(cls, title_number: int) -> Response:
+        current_app.logger.debug("Getting amendment dates...")
+        try:
+            connection: Connection = get_connection(isolation_level="REPEATABLE READ")
+        except TimeoutError as pe:
+            current_app.logger.warning("Not enough resources: %s", pe, exc_info=True)
+            raise ResourceWarning(pe)
+
+        try:
+            title_exists: int = connection.execute(
+                select(exists().where(cast(ColumnElement[bool], Titles.c.number == title_number)))).scalar()
+            if not title_exists:
+                raise AssertionError(f"Title with number={title_number} does not exist")
+            cursor: CursorResult = connection.execute(
+                select(Amendments.c.amendment_date).distinct().where(
+                    cast(ColumnElement[bool], Amendments.c.number == title_number)).order_by(
+                    Amendments.c.amendment_date))
+
+            return Response(stream_with_context(list_generator(cursor.mappings(), connection, DateSchema())),
+                            content_type="application/json")
+        except Exception as e:
+            connection.rollback()
+            current_app.logger.error("Exception while getting amendment dates: %s", e, exc_info=True)
             raise e
