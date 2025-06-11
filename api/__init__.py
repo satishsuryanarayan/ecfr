@@ -13,6 +13,7 @@ from api.view.agencies import agencies
 from api.view.cfr_insights import insights
 from api.view.cfr_references import references
 from api.view.database import database
+from api.view.titles import titles
 
 
 class APIConfig:
@@ -76,6 +77,7 @@ def create_app(test_config: dict = None) -> Flask:
 
     api: Api = Api(app)
     api.register_blueprint(database)
+    api.register_blueprint(titles)
     api.register_blueprint(agencies)
     api.register_blueprint(references)
     api.register_blueprint(insights)

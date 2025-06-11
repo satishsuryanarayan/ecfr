@@ -2,7 +2,8 @@ from flask import Response
 from flask.views import MethodView
 from flask_smorest import abort, Blueprint
 
-from api.dtos.title import TitleSchema
+from api.controller.titles import TitlesController
+from api.dtos.title import TitleSchema, Title
 
 titles: Blueprint = Blueprint("Titles", "Titles", description="Titles API")
 
