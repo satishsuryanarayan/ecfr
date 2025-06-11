@@ -44,7 +44,6 @@ class AgenciesController:
             grouped_by_agency: Dict[str, Any] = {column.key: mappings[0][column] for column in Agencies.columns}
             grouped_by_agency["cfr_references"] = [{column.key: row[column] for column in CFR_References.columns
                                                     if column in row} for row in mappings]
-            current_app.logger.debug(grouped_by_agency)
             schema: AgencySchema = AgencySchema()
             instance: Agency = schema.load(grouped_by_agency)
             cursor.close()

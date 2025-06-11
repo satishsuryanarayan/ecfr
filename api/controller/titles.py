@@ -45,7 +45,6 @@ class TitlesController:
             grouped_by_title: Dict[str, Any] = {column.key: mappings[0][column] for column in Titles.columns}
             grouped_by_title["amendments"] = [{column.key: row[column] for column in Amendments.columns
                                                if column in row} for row in mappings]
-            current_app.logger.debug(grouped_by_title)
             schema: TitleSchema = TitleSchema()
             instance: Title = schema.load(grouped_by_title)
             cursor.close()
@@ -122,7 +121,7 @@ class TitlesController:
                                 insert(Amendments).values(title=title_number, amendment_date=amendment_date,
                                                           issue_date=issue_date))
                         current_app.logger.debug(
-                            f"Finished populating amendments from source for title={title_number}...")
+                            f"Finished populating amendments for title={title_number}.")
         except Exception as e:
             current_app.logger.error("Exception while creating titles: %s", e, exc_info=True)
             raise e
