@@ -143,7 +143,7 @@ class TitlesController:
                 raise AssertionError(f"Title with number={title_number} does not exist")
             cursor: CursorResult = connection.execute(
                 select(Amendments.c.issue_date).distinct().where(
-                    cast(ColumnElement[bool], Amendments.c.number == title_number)).order_by(
+                    cast(ColumnElement[bool], Amendments.c.title == title_number)).order_by(
                     Amendments.c.issue_date))
 
             return Response(stream_with_context(list_generator(cursor.mappings(), connection, DateSchema())),
@@ -169,7 +169,7 @@ class TitlesController:
                 raise AssertionError(f"Title with number={title_number} does not exist")
             cursor: CursorResult = connection.execute(
                 select(Amendments.c.amendment_date).distinct().where(
-                    cast(ColumnElement[bool], Amendments.c.number == title_number)).order_by(
+                    cast(ColumnElement[bool], Amendments.c.title == title_number)).order_by(
                     Amendments.c.amendment_date))
 
             return Response(stream_with_context(list_generator(cursor.mappings(), connection, DateSchema())),
