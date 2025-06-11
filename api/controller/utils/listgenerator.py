@@ -61,6 +61,10 @@ def group_list_generator(cursor: MappingResult, connection: Connection, schema: 
             results: Sequence[RowMapping] = cursor.fetchmany(size=size)
             if serialized_data and results:
                 yield ", "
+        if group_dict and group_list:
+            group_dict[list_key] = group_list
+            instance = schema.load(group_dict)
+            yield schema.dumps(instance)
         yield "]"
     except Exception as e:
         current_app.logger.warning("Unknown error in data generator list: %s", e, exc_info=True)
