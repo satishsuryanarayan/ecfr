@@ -103,7 +103,6 @@ class TitlesController:
                 data: Dict[str, List[Dict[str, Any]]] = response.json()
                 titles_list: List[Dict[str, Any]] = data["titles"]
                 current_app.logger.debug("Finished getting titles from source.")
-
                 with connection.begin():
                     for title in titles_list:
                         title_number: int = title["number"]
@@ -119,9 +118,11 @@ class TitlesController:
                         for version in unique_versions:
                             amendment_date: datetime = datetime.strptime(version[0], "%Y-%m-%d")
                             issue_date: datetime = datetime.strptime(version[1], "%Y-%m-%d")
-                            connection.execute(insert(Amendments).values(title=title_number, amendment_date=amendment_date,
-                                                                         issue_date=issue_date))
-                        current_app.logger.debug(f"Finished populating amendments from source for title={title_number}...")
+                            connection.execute(
+                                insert(Amendments).values(title=title_number, amendment_date=amendment_date,
+                                                          issue_date=issue_date))
+                        current_app.logger.debug(
+                            f"Finished populating amendments from source for title={title_number}...")
         except Exception as e:
             current_app.logger.error("Exception while creating titles: %s", e, exc_info=True)
             raise e
