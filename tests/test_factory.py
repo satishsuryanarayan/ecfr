@@ -8,6 +8,37 @@ def test_config():
     assert create_app({'TESTING': True}).testing
 
 
+def test_initialize(client):
+    response = client.post("/initialize", json={"force": True})
+    assert response.status_code == 201
+
+
+def test_create_titles(client):
+    response = client.post("/titles")
+    assert response.status_code == 201
+
+
+def test_get_titles(client):
+    response = client.get("/titles")
+    assert response.status_code == 200
+    response = json.loads(response.data)
+    assert len(response) > 0
+
+
+def test_get_issue_dates(client):
+    response = client.get("/titles/amendments/issue_dates/1")
+    assert response.status_code == 200
+    response = json.loads(response.data)
+    assert len(response) > 0
+
+
+def test_get_amendment_dates(client):
+    response = client.get("/titles/amendments/issue_dates/2")
+    assert response.status_code == 200
+    response = json.loads(response.data)
+    assert len(response) > 0
+
+
 def test_create_agencies(client):
     response = client.post("/agencies")
     assert response.status_code == 201
