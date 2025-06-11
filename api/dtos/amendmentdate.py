@@ -12,7 +12,7 @@ class AmendmentDate:
 
 
 class AmendmentDateSchema(Schema):
-    issue_date = fields.Date(format="%Y-%m-%d", required=True)
+    amendment_date = fields.Date(format="%Y-%m-%d", required=True)
 
     @post_load
     def make_amendment_date(self, data: dict, **kwargs: dict) -> AmendmentDate:
