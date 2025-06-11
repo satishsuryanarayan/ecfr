@@ -16,14 +16,12 @@ def list_generator(cursor: MappingResult, connection: Connection, schema: Schema
         yield "["
         results: Sequence[RowMapping] = cursor.fetchmany(size=size)
         while results:
-            serialized_data: List[str] = []
+            serialized_data: List[str] = list()
             for row in results:
                 instance = schema.load(row)
                 serialized_data.append(schema.dumps(instance))
             yield ", ".join(serialized_data)
             results: Sequence[RowMapping] = cursor.fetchmany(size=size)
-            if results:
-                yield ", "
         yield "]"
     except Exception as e:
         current_app.logger.warning("Unknown error in data generator list: %s", e, exc_info=True)
@@ -44,7 +42,7 @@ def group_list_generator(cursor: MappingResult, connection: Connection, schema: 
         if results:
             group_dict = {column.key: results[0][column] for column in group}
         while results:
-            serialized_data = []
+            serialized_data: List[str] = list()
             for row in results:
                 row_group = {column.key: row[column] for column in group}
                 if row_group == group_dict:
@@ -58,8 +56,6 @@ def group_list_generator(cursor: MappingResult, connection: Connection, schema: 
                     group_list.append({column.key: row[column] for column in list_keys if column in row})
             yield ", ".join(serialized_data)
             results: Sequence[RowMapping] = cursor.fetchmany(size=size)
-            if results:
-                yield ", "
         yield "]"
     except Exception as e:
         current_app.logger.warning("Unknown error in data generator list: %s", e, exc_info=True)

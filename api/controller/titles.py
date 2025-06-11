@@ -4,7 +4,7 @@ from typing import Dict, List, Any, cast, Sequence, Tuple, Set
 import requests
 from flask import current_app, stream_with_context, Response
 from requests.adapters import HTTPAdapter
-from sqlalchemy import insert, select, ColumnElement, MappingResult, exists, RowMapping
+from sqlalchemy import insert, select, ColumnElement, MappingResult, exists, RowMapping, desc
 from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 from urllib3 import Retry
@@ -67,7 +67,7 @@ class TitlesController:
         try:
             cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
                 select(Titles, Amendments).select_from(
-                    Titles.join(Amendments, Titles.c.number == Amendments.c.title)).order_by(Titles.c.number))
+                    Titles.join(Amendments, Titles.c.number == Amendments.c.title)).order_by(desc(Titles.c.number), desc(Amendments.c.issue_date)))
             return Response(stream_with_context(group_list_generator(cursor.mappings(), connection, TitleSchema(),
                                                                      Titles.columns, "amendments",
                                                                      Amendments.columns)),
@@ -102,6 +102,7 @@ class TitlesController:
                     title_number: int = title["number"]
                     connection.execute(insert(Titles).values(number=title_number, name=title["name"])).close()
                     amendments_url: str = f"https://www.ecfr.gov/api/versioner/v1/versions/title-{title_number}.json"
+                    current_app.logger.debug(f"Getting amendments from source for title={title_number}...")
                     response: requests.Response = session.get(amendments_url)
                     data: Dict[str, List[Dict[str, Any]]] = response.json()
                     versions_list: List[Dict[str, Any]] = data["content_versions"]
@@ -113,6 +114,7 @@ class TitlesController:
                         issue_date: datetime = datetime.strptime(version[1], "%Y-%m-%d")
                         connection.execute(insert(Amendments).values(title=title_number, amendment_date=amendment_date,
                                                                      issue_date=issue_date))
+                    current_app.logger.debug(f"Finished populating amendments from source for title={title_number}...")
         except Exception as e:
             current_app.logger.error("Exception while creating titles: %s", e, exc_info=True)
             raise e
