@@ -41,10 +41,11 @@ def group_list_generator(cursor: MappingResult, connection: Connection, schema: 
         results: Sequence[RowMapping] = cursor.fetchmany(size=size)
         group_dict: Dict[str, Any] = dict()
         group_list: List[Dict[str, Any]] = list()
+        need_comma: bool = False
         if results:
             group_dict = {column.key: results[0][column] for column in group}
         while results:
-            serialized_data: List[str] = list()
+            serialized_data = list()
             for row in results:
                 row_group = {column.key: row[column] for column in group}
                 if row_group == group_dict:
@@ -57,11 +58,14 @@ def group_list_generator(cursor: MappingResult, connection: Connection, schema: 
                     group_list = list()
                     group_list.append({column.key: row[column] for column in list_keys if column in row})
             if serialized_data:
+                if need_comma:
+                    yield ", "
                 yield ", ".join(serialized_data)
+                need_comma = True
             results: Sequence[RowMapping] = cursor.fetchmany(size=size)
-            if serialized_data and results:
-                yield ", "
         if group_dict and group_list:
+            if need_comma:
+                yield ", "
             group_dict[list_key] = group_list
             instance = schema.load(group_dict)
             yield schema.dumps(instance)
