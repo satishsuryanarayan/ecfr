@@ -4,7 +4,7 @@ from typing import Dict, List, Any, cast, Sequence, Tuple, Set
 import requests
 from flask import current_app, stream_with_context, Response
 from requests.adapters import HTTPAdapter
-from sqlalchemy import insert, select, ColumnElement, MappingResult, exists, RowMapping, desc, asc, func
+from sqlalchemy import insert, select, ColumnElement, MappingResult, exists, RowMapping, func
 from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 from urllib3 import Retry
@@ -42,7 +42,8 @@ class TitlesController:
             cursor: MappingResult = connection.execute(
                 select(Titles, Amendments).select_from(
                     Titles.join(Amendments, Titles.c.number == Amendments.c.title)).where(
-                    cast(ColumnElement[bool], Titles.c.number == title_number))).mappings()
+                    cast(ColumnElement[bool], Titles.c.number == title_number)).order_by(
+                    Amendments.c.issue_date)).mappings()
             mappings: Sequence[RowMapping] = cursor.fetchall()
             grouped_by_title: Dict[str, Any] = {column.key: mappings[0][column] for column in Titles.columns}
             grouped_by_title["amendments"] = [{column.key: row[column] for column in Amendments.columns
@@ -68,8 +69,8 @@ class TitlesController:
         try:
             cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
                 select(Titles, Amendments).select_from(
-                    Titles.join(Amendments, Titles.c.number == Amendments.c.title)).order_by(asc(Titles.c.number), desc(
-                    Amendments.c.issue_date)))
+                    Titles.join(Amendments, Titles.c.number == Amendments.c.title)).order_by(Titles.c.number,
+                                                                                             Amendments.c.issue_date))
             return Response(stream_with_context(group_list_generator(cursor.mappings(), connection, TitleSchema(),
                                                                      Titles.columns, "amendments",
                                                                      Amendments.columns)),
