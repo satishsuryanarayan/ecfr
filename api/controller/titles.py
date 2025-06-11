@@ -4,7 +4,7 @@ from typing import Dict, List, Any, cast, Sequence, Tuple, Set
 import requests
 from flask import current_app, stream_with_context, Response
 from requests.adapters import HTTPAdapter
-from sqlalchemy import insert, select, ColumnElement, MappingResult, exists, RowMapping, desc, asc
+from sqlalchemy import insert, select, ColumnElement, MappingResult, exists, RowMapping, desc, asc, func
 from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 from urllib3 import Retry
@@ -67,7 +67,8 @@ class TitlesController:
         try:
             cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
                 select(Titles, Amendments).select_from(
-                    Titles.join(Amendments, Titles.c.number == Amendments.c.title)).order_by(asc(Titles.c.number), desc(Amendments.c.issue_date)))
+                    Titles.join(Amendments, Titles.c.number == Amendments.c.title)).order_by(asc(Titles.c.number), desc(
+                    Amendments.c.issue_date)))
             return Response(stream_with_context(group_list_generator(cursor.mappings(), connection, TitleSchema(),
                                                                      Titles.columns, "amendments",
                                                                      Amendments.columns)),
@@ -87,6 +88,12 @@ class TitlesController:
             raise ResourceWarning(pe)
 
         try:
+            with connection.begin():
+                count: int = connection.execute(select(func.count(Titles.c.number))).scalar()
+                if count > 0:
+                    current_app.logger.debug("Titles already created.")
+                    return
+
             with requests.session() as session:
                 current_app.logger.debug("Getting titles from source...")
                 session.mount("https://", adapter)

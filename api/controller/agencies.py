@@ -3,7 +3,7 @@ from typing import Dict, List, Any, cast, Sequence
 import requests
 from flask import current_app, stream_with_context, Response
 from requests.adapters import HTTPAdapter
-from sqlalchemy import insert, select, ColumnElement, MappingResult, exists, RowMapping
+from sqlalchemy import insert, select, ColumnElement, MappingResult, exists, RowMapping, func
 from sqlalchemy.engine import Connection, CursorResult
 from sqlalchemy.exc import TimeoutError
 from urllib3 import Retry
@@ -86,6 +86,12 @@ class AgenciesController:
             raise ResourceWarning(pe)
 
         try:
+            with connection.begin():
+                count: int = connection.execute(select(func.count(Agencies.c.id))).scalar()
+                if count > 0:
+                    current_app.logger.debug("Agencies already created.")
+                    return
+
             with requests.session() as session:
                 current_app.logger.debug("Getting agencies from source...")
                 session.mount("https://", adapter)
