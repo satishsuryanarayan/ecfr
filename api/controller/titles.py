@@ -102,6 +102,7 @@ class TitlesController:
                 session.headers.update({"Accept": "application/json"})
                 titles_url: str = "https://www.ecfr.gov/api/versioner/v1/titles.json"
                 response: requests.Response = session.get(titles_url)
+                response.raise_for_status()
                 data: Dict[str, List[Dict[str, Any]]] = response.json()
                 titles_list: List[Dict[str, Any]] = data["titles"]
                 current_app.logger.debug("Finished getting titles from source.")
@@ -112,6 +113,7 @@ class TitlesController:
                         amendments_url: str = f"https://www.ecfr.gov/api/versioner/v1/versions/title-{title_number}.json"
                         current_app.logger.debug(f"Getting amendments from source for title={title_number}...")
                         response: requests.Response = session.get(amendments_url)
+                        response.raise_for_status()
                         data: Dict[str, List[Dict[str, Any]]] = response.json()
                         versions_list: List[Dict[str, Any]] = data["content_versions"]
                         unique_versions: Set[Tuple[str, str]] = set()

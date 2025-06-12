@@ -29,7 +29,8 @@ class CFRReferencesController:
                 if not reference_exists:
                     raise AssertionError(f"CFR Reference with id={cfr_reference_id} does not exist")
                 cursor: MappingResult = connection.execute(
-                    select(CFR_References).where(cast(ColumnElement[bool], CFR_References.c.id == cfr_reference_id))).mappings()
+                    select(CFR_References).where(
+                        cast(ColumnElement[bool], CFR_References.c.id == cfr_reference_id))).mappings()
                 schema: CFRReferenceSchema = CFRReferenceSchema()
                 instance: CFRReference = schema.load(cursor.fetchone())
                 cursor.close()

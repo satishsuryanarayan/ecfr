@@ -97,6 +97,7 @@ class AgenciesController:
                 session.headers.update({"Accept": "application/json"})
                 agencies_url: str = "https://www.ecfr.gov/api/admin/v1/agencies.json"
                 response = session.get(agencies_url)
+                response.raise_for_status()
                 data: Dict[str, List[Dict[str, Any]]] = response.json()
                 agency_list: List[Dict[str, Any]] = data["agencies"]
                 current_app.logger.debug("Finished getting agencies from source.")

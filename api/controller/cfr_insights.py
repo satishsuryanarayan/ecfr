@@ -164,29 +164,27 @@ class CFRInsightsController:
                             current_app.logger.debug("Calling url: %s", xml_url)
                             response: requests.Response = session.get(xml_url)
                             current_app.logger.debug("Received response from url: %s", xml_url)
-                            if response.status_code == 200:
-                                root: Element = ElementTree.fromstring(response.text)
-                                total_word_count: int = 0
-                                total_restrictive_terms_count: int = 0
-                                current_app.logger.debug("Computing metrics...")
-                                hash_obj = hashlib.sha256()
-                                for elem in root.iter():
-                                    if elem.text:
-                                        stripped_text = elem.text.strip()
-                                        if stripped_text:
-                                            hash_obj.update(stripped_text.encode())
-                                            word_count, restrictive_terms_count = count_words(stripped_text)
-                                            total_word_count += word_count
-                                            total_restrictive_terms_count += restrictive_terms_count
-                                current_app.logger.debug("Finished processing url: %s", xml_url)
-                                connection.execute(
-                                    insert(CFR_Insights).values(cfr_reference_id=cfr_reference_id, agency_id=agency_id,
-                                                                parent_agency_id=parent_agency_id, date=date,
-                                                                word_count=total_word_count,
-                                                                checksum=hash_obj.hexdigest(),
-                                                                restrictive_terms_count=total_restrictive_terms_count)).close()
-                            else:
-                                raise AssertionError(f"Status code: {response.status_code} Reason: {response.reason}")
+                            response.raise_for_status()
+                            root: Element = ElementTree.fromstring(response.text)
+                            total_word_count: int = 0
+                            total_restrictive_terms_count: int = 0
+                            current_app.logger.debug("Computing metrics...")
+                            hash_obj = hashlib.sha256()
+                            for elem in root.iter():
+                                if elem.text:
+                                    stripped_text = elem.text.strip()
+                                    if stripped_text:
+                                        hash_obj.update(stripped_text.encode())
+                                        word_count, restrictive_terms_count = count_words(stripped_text)
+                                        total_word_count += word_count
+                                        total_restrictive_terms_count += restrictive_terms_count
+                            current_app.logger.debug("Finished processing url: %s", xml_url)
+                            connection.execute(
+                                insert(CFR_Insights).values(cfr_reference_id=cfr_reference_id, agency_id=agency_id,
+                                                            parent_agency_id=parent_agency_id, date=date,
+                                                            word_count=total_word_count,
+                                                            checksum=hash_obj.hexdigest(),
+                                                            restrictive_terms_count=total_restrictive_terms_count)).close()
                         except Exception as e:
                             current_app.logger.error("Exception %s occurred while creating insights for url: %s",
                                                      e, xml_url, exc_info=False)
