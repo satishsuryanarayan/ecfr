@@ -15,7 +15,7 @@ from api.dtos.amendmentdate import AmendmentDateSchema
 from api.dtos.issuedate import IssueDateSchema
 from api.dtos.title import TitleSchema, Title
 from api.model.amendments import Amendments
-from api.model.title import Titles
+from api.model.titles import Titles
 
 retry_strategy: Retry = Retry(
     total=5,

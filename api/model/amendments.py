@@ -1,7 +1,7 @@
 from sqlalchemy import Table, Column, Integer, ForeignKey, Date
 
 from api.model.database import metadata
-from api.model.title import Titles
+from api.model.titles import Titles
 
 Amendments = Table(
     "amendments",
