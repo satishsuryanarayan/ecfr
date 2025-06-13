@@ -22,7 +22,7 @@ from api.model.cfr_references import CFR_References
 
 retry_strategy: Retry = Retry(
     total=5,
-    backoff_factor=1
+    respect_retry_after_header=True
 )
 adapter: HTTPAdapter = HTTPAdapter(max_retries=retry_strategy)
 

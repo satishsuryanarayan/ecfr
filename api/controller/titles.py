@@ -19,7 +19,7 @@ from api.model.titles import Titles
 
 retry_strategy: Retry = Retry(
     total=5,
-    backoff_factor=1
+    respect_retry_after_header=True
 )
 adapter: HTTPAdapter = HTTPAdapter(max_retries=retry_strategy)
 
@@ -70,7 +70,7 @@ class TitlesController:
             cursor: CursorResult = connection.execution_options(stream_results=True, yield_per=chunk_size).execute(
                 select(Titles, Amendments).select_from(
                     Titles.join(Amendments, Titles.c.number == Amendments.c.title)).order_by(Titles.c.number,
-                                                                                             Amendments.c.issue_date))
+                                                                                    Amendments.c.issue_date))
             return Response(stream_with_context(group_list_generator(cursor.mappings(), connection, TitleSchema(),
                                                                      Titles.columns, "amendments",
                                                                      Amendments.columns)),
