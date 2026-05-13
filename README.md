@@ -4,7 +4,7 @@
 
 1. Actionable insights to be made on potential deregulation efforts across the government by providing KPIs such as:
    1. Word count growth is CFR over time
-   2. Growth is restrictive terms ("shall", "must", "may not", "prohibited")
+   2. Growth in restrictive terms ("shall", "must", "may not", "prohibited")
    3. Growth in the number of references over time
    4. Addition of sub-parts over time etc.
 2. APIs to extract KPIs
